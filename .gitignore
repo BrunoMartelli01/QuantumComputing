@@ -1,0 +1,9 @@
+__pycache__
+report/build
+*.csv
+*.txt
+!report/Copyright*.txt
+*.log
+sketch.ipynb
+sketch.py
+.DS_Store

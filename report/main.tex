@@ -1,0 +1,124 @@
+\documentclass{ceurart}
+
+\usepackage{lineno}
+\linenumbers
+\usepackage[inline]{enumitem}
+\usepackage{physics}
+\usepackage{todonotes}
+
+\begin{document}
+
+\copyrightyear{2025}
+\copyrightclause{Copyright for this paper by its authors. Use permitted under Creative Commons License Attribution 4.0 International (CC BY 4.0).}
+\conference{BigHPC2025: Special Track on Big Data and High-Performance Computing, co-located with the 4\textsuperscript{th} Italian Conference on Big Data and Data Science, ITADATA2025, September 09 -- 11, 2025, Turin, Italy.}
+\title{End2End Quantum Learning}
+
+\author[1]{Mario Bifulco}[email=mario.bifulco@unito.it,url=https://github.com/TheFlonet/???] % TODO add repo
+\cormark[1]
+\author[1]{Luca Roversi}[orcid=0000-0002-1871-6109,email=luca.roversi@unito.it,url=https://www.di.unito.it/~rover/]
+\address[1]{Università degli studi di Torino, Dipartimento di Informatica, Corso Svizzera 185 - 10149 Torino}
+\cortext[1]{Corresponding author.}
+
+\begin{abstract}
+  TODO
+\end{abstract}
+
+\begin{keywords}
+  Quantum Machine Learning \sep
+  Quantum Support Vector Machine \sep 
+  Quantum High Performance Computing \sep
+  Quantum Gate \sep
+  Quantum Annealing
+\end{keywords}
+
+\maketitle
+
+\section{Introduction}
+
+Quantum computing ultimately aims to expand the boundaries of what is currently considered computable.
+This goal can be pursued by focusing on two main directions:
+\begin{enumerate*}
+  \item Performing certain classes of computations more efficiently than classical computers;
+  \item Enhancing the expressive capacity of currently adopted computational methods;
+\end{enumerate*}
+Among the various fields where such advancements appear promising is machine learning.
+
+When discussing quantum computing, it is essential to specify the computational paradigm being considered.
+\emph{Gate-based quantum computing} refers to a universal quantum computing model, typically implemented using superconducting circuits, where quantum circuits are programmed analogously to how logic gates define classical circuits.
+\emph{Annealing-based quantum computing}, on the other hand, refers to a non-universal subset of adiabatic quantum computing, primarily designed for solving optimization problems.
+
+In the context of quantum machine learning, support vector machines (SVMs) have been studied under both computational paradigms\cite{qsvm_qa, qsvm_gqc}.
+Within SVMs, we can distinguish two principal components that contribute to model training:
+\begin{enumerate*}
+  \item The \emph{kernel method}, which enables the mapping of examples into a higher-dimensional feature space, thereby increasing the likelihood of linear separability, as per Cover's theorem\cite{th_cover};
+  \item The \emph{optimization problem}, which identifies the model parameters used for inference on new data instances.
+\end{enumerate*}
+
+In the literature, the term \emph{Quantum Support Vector Machine (QSVM)} is used with two distinct meanings.
+In the quantum annealing framework, QSVM refers to the use of classical kernels combined with a reformulation of the optimization problem to be solved via quantum annealing.
+In the gate-based approach, by contrast, quantum computing is employed to compute the kernels, while the optimization is handled by classical processors.
+
+This work aims to unify the aforementioned approaches to construct a fully quantum learning pipeline for support vector machines.
+
+\todo{aggiungere motivazione verso quantum HPC}
+
+\section{Quantum Kernel}
+
+The use of quantum kernels enables the mapping of input examples into a hyperspace of dimension $O(2^{\#\text{features}})$.
+This property stems from the fact that qubits can exist in a superposition of states, allowing the simultaneous representation of both $\ket{0}$ and $\ket{1}$ during computation.
+However, this superposition is lost upon measurement, which—according to the postulates of quantum mechanics—\todo{valutare citazione sul collasso dell'onda}causes the wave function to collapse into one of the two basis states.
+
+Quantum kernel\todo{Citazione quantum kernel method} methods are based on the construction of a quantum circuit that is executed for each pair of input data points. 
+Specifically, given two classical input vectors $\vec{x}_i$ and $\vec{x}_j$, the quantum kernel evaluates the similarity between them by computing the fidelity (i.e., squared inner product) of their corresponding quantum states in Hilbert space.
+
+The typical procedure involves the following steps:
+\begin{enumerate*}
+  \item Each input $\vec{x}$ is encoded into a quantum state $\ket{\phi(\vec{x})}$ using a feature map circuit;
+  \item For each pair $(\vec{x}_i, \vec{x}_j)$, a quantum circuit is constructed to prepare the state $\ket{\phi(\vec{x}_i)}$, followed by the inverse of the circuit that prepares $\ket{\phi(\vec{x}_j)}$;
+  \item The overlap between the states is then estimated by measuring the probability of the resulting state collapsing to the all-zero state, i.e., computing $|\langle\phi(\vec{x}_i)|\phi(\vec{x}_j)\rangle|^2$.
+\end{enumerate*}
+
+This procedure allows the definition of a kernel matrix $K$, where each entry $K_{ij}$ corresponds to the quantum fidelity between examples $\vec{x}_i$ and $\vec{x}_j$.
+
+In our experiments, we evaluated various quantum kernels by tuning the following hyperparameters:
+\todo{f\_map: Aggiungere foto di zz\_feature\_map e z\_feature\_map\\entanglement: Aggiungere foto con entanglement linear e full}
+\begin{description}
+  \item[Number of qubits available:] 
+  Determines the upper limit of encodable features. When the number of qubits was insufficient, we applied Principal Component Analysis (PCA) to project the data into an \emph{n}-dimensional subspace capturing the most relevant variance.
+
+  \item[Feature map:] 
+  The quantum circuit responsible for encoding classical data into quantum states. These circuits determine the geometry of the induced Hilbert space and affect model expressivity.
+
+  \item[Repetitions of the feature map:] 
+  Defines how many times the feature map circuit is applied in sequence. Increasing repetitions enhances the circuit's expressiveness but also deepens the circuit, which may lead to increased noise on real hardware.
+
+  \item[Qubit entanglement:] 
+  Specifies the entanglement pattern among qubits. This directly impacts the circuit's ability to capture correlations between features.
+\end{description}
+
+\todo{Aggiungere osservazioni sulle performance e i parametri selezionati dei kernel}
+
+\section{Quantum Annealing Support Vector Machine}
+
+Annealing-based quantum computing naturally addresses quadratic optimization problems, particularly those formulated as QUBO (Quadratic Unconstrained Binary Optimization) instances.
+The dual form of the support vector machine (SVM) problem\cite{svm} leads to a quadratic objective, which can be adapted to QUBO by incorporating constraints into the objective function and converting variables into binary form.
+
+Constraint incorporation is typically achieved through Lagrangian relaxation\cite{lagrangian_relaxation}. 
+However, the binarization process is less straightforward due to the continuous nature of the optimization variables, which lie in $\mathbb{R}$.
+
+Integer variables can be automatically encoded in binary format, provided that an upper bound is defined for each variable. 
+This additional hyperparameter is crucial, as omitting it would result in each variable being represented with 64 bits by default, leading to problems that exceed the capacity of current quantum annealers.
+While the binarization of real-valued variables incurs significantly more overhead.
+
+Empirically, we found that treating all optimization variables as integers yields a degradation in model performance of less than one percentage point.
+This trade-off led us to favor an approximated yet more hardware-efficient formulation during model generation.
+
+\todo{Aggiungere risultati della SVM senza kernel e approfondimento sui due parametri (C, regolarizzazione e UB, upper bound delle variabili)}
+
+\section{A Complete QSVM}
+
+\section{Conclusion}
+
+\bibliography{refs.bib}
+
+\end{document}
