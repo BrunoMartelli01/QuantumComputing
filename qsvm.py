@@ -1,12 +1,8 @@
 import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin
-
-# Sampling
 import dimod
 from dwave.samplers import SimulatedAnnealingSampler
 from dimod.generators.integer import binary_encoding
-
-# Model
 import pyomo.environ as pyo
 import os
 
