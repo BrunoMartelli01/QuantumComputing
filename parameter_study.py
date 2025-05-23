@@ -33,19 +33,17 @@ def search_seed():
     return selected_prime, curr_diff
 
 
-search_seed()
-
 """
 Quantum Kernel
 
 Objective: fine the bests parameters for the quantum kernel
 """
 
-train_features, _, train_labels, _ = get_dataset()
-train_labels = train_labels * 2 - 1
-
 
 def evaluate_kernel(entanglement, num_qubits, reps, f_map):
+    train_features, _, train_labels, _ = get_dataset()
+    train_labels = train_labels * 2 - 1
+
     if num_qubits != train_features.shape[1]:
         pca = PCA(n_components=num_qubits)
         fix_train = pca.fit_transform(train_features)
@@ -62,9 +60,11 @@ def evaluate_kernel(entanglement, num_qubits, reps, f_map):
     return alignment, duration
 
 
-for reps_, num_qubits_, f_map_ in product([1, 2, 3], [4, 8, 16, 30], FeatureMapKind):
-    al, dur = evaluate_kernel(num_qubits=num_qubits_, reps=reps_, f_map=f_map_, entanglement='linear')
-    print(f'LOG: num_qubits {num_qubits_} - reps {reps_} - f_map {f_map_.name} - Alignment {al} - Duration {dur}')
+def qkernel_study():
+    for reps_, num_qubits_, f_map_ in product([1, 2, 3], [4, 8, 16, 30], FeatureMapKind):
+        al, dur = evaluate_kernel(num_qubits=num_qubits_, reps=reps_, f_map=f_map_, entanglement='linear')
+        print(f'LOG: num_qubits {num_qubits_} - reps {reps_} - f_map {f_map_.name} - Alignment {al} - Duration {dur}')
+
 
 """
 Quantum Support Vector Machine
@@ -72,9 +72,17 @@ Quantum Support Vector Machine
 Objective: find the best value for the regularization parameter C
 """
 
-train_features, test_features, train_labels, test_labels = get_dataset()
-for big_c in range(1, 13):
-    svm = QASVM(big_c=2 ** big_c - 1)
-    svm.fit(train_features, train_labels)
-    predictions = svm.predict(test_features)
-    print(f'C: {2 ** big_c - 1} - F1: {round(f1_score(test_labels, predictions), 3)}')
+
+def qsvm_study():
+    train_features, test_features, train_labels, test_labels = get_dataset()
+    for big_c in range(2, 13):
+        svm = QASVM(big_c=2 ** big_c - 1, kernel_func=lambda x, y: x @ y.T)
+        svm.fit(train_features, train_labels)
+        predictions = svm.predict(test_features)
+        print(f'LOG: C {2 ** big_c - 1} - F1 {round(f1_score(test_labels, predictions), 3)}')
+
+
+if __name__ == '__main__':
+    search_seed()
+    qkernel_study()
+    qsvm_study()
