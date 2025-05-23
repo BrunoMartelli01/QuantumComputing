@@ -6,6 +6,11 @@
 \usepackage{physics}
 \usepackage{todonotes}
 
+\usepackage{ulem} % \sout
+\newcommand{\LH}[1]{\textcolor{blue}{{ #1}}}
+\newcommand{\LHs}[1]{\textcolor{blue}{\sout {#1}}}
+\newcommand{\LM}[1]{\textcolor{red}{{ #1}}}
+\newcommand{\LMs}[1]{\textcolor{red}{\sout {#1}}}
 \begin{document}
 
 \copyrightyear{2025}
@@ -25,7 +30,7 @@
 
 \begin{keywords}
   Quantum Machine Learning \sep
-  Quantum Support Vector Machine \sep 
+  Quantum Support Vector Machine \sep
   Quantum High Performance Computing \sep
   Quantum Gate \sep
   Quantum Annealing
@@ -33,14 +38,17 @@
 
 \maketitle
 
+%---------------------
 \section{Introduction}
 
-Quantum computing ultimately aims to expand the boundaries of what is currently considered computable.
+Quantum computing ultimately aims to expand the boundaries of what is currently considered \LH{efficiently} computable.
 This goal can be pursued by focusing on two main directions:
 \begin{enumerate*}
   \item Performing certain classes of computations more efficiently than classical computers;
-  \item Enhancing the expressive capacity of currently adopted computational methods;
+        \LH{(Aggiungendo ``efficiently'' potrebbe essere inutile inserire il punto 1)}
+  \item Enhancing the expressive capacity \LH{(occorre stabilire cosa intendi per ``expressive capacity'')} of currently adopted computational methods;
 \end{enumerate*}
+\todo{Alla fine, dopo aver letto tutta l'introduzione, togliere i punti 1 e 2 precedenti.}
 Among the various fields where such advancements appear promising is machine learning.
 
 When discussing quantum computing, it is essential to specify the computational paradigm being considered.
@@ -58,17 +66,20 @@ In the literature, the term \emph{Quantum Support Vector Machine (QSVM)} is used
 In the quantum annealing framework, QSVM refers to the use of classical kernels combined with a reformulation of the optimization problem to be solved via quantum annealing.
 In the gate-based approach, by contrast, quantum computing is employed to compute the kernels, while the optimization is handled by classical processors.
 
-This work aims to unify the aforementioned approaches to construct a fully quantum learning pipeline for support vector machines.
+This work aims to unify the aforementioned approaches to construct a fully quantum learning pipeline for support vector machines. \LH{(Avendo letto la sezione successiva, mi è venuto in mente che qui sarebbe utile dire in che direzione fai l'unificazione: quale parte classica fai diventare quantistica? È l'ottimizzazione, avendo gratis la generazione quantistica dei kernel del gate-based? Oppure è l'altra opzione? Penso sia la prima. )}
 
-\todo{aggiungere motivazione verso quantum HPC}
+\todo{aggiungere motivazione verso quantum HPC \LH{del tipo: `` to extend the promised quantum-supremacy to the whole learning workflow related to learn a SVM''?}}
 
-\section{Quantum Kernel}
+%---------------------
+\section{Quantum Kernel \LH{(``A short recap about gate-based generated Quantum Kernels'' è un possibile titolo alternativo?)}}
+
+\LH{(Se in precedenza specifichi che vuoi sfruttare la genereazione gate-based dei kernel, qui si potrebbe cominciare con qualcosa del tipo: ``This section recalls meaning and features of the workflow/results/non-so-di-preciso-cosa related to the generation/generated kernel by gate-based quantum algorithms.'' Cioè occorre dare lo scopo della sezione, anticipando i punti chiave.)}
 
 The use of quantum kernels enables the mapping of input examples into a hyperspace of dimension $O(2^{\#\text{features}})$.
-This property stems from the fact that qubits can exist in a superposition of states, allowing the simultaneous representation of both $\ket{0}$ and $\ket{1}$ during computation.
-However, this superposition is lost upon measurement, which—according to the postulates of quantum mechanics—\todo{valutare citazione sul collasso dell'onda}causes the wave function to collapse into one of the two basis states.
+This property stems from the fact that \LH{states formed by} qubits can \LHs{exist in a superposition of states} be superposed, \LHs{allowing the simultaneous representation of both $\ket{0}$ and $\ket{1}$} during a computation.
+However, this superposition is lost upon measurement, which—according to the postulates of quantum mechanics—\todo{valutare citazione sul collasso dell'onda \LH{Il riferimento al collasso è funzionale al nostro discorso?}}causes the wave function to collapse into one of the two basis states.
 
-Quantum kernel\todo{Citazione quantum kernel method} methods are based on the construction of a quantum circuit that is executed for each pair of input data points. 
+Quantum kernel\todo{Citazione quantum kernel method} methods are based on the construction of a quantum circuit that is executed for each pair of input data points. \LH{(I suggerimenti precedenti erano volti a preparare il lettore sul fatto che qui stai descrivendo un'attività svolta con architetture gate-based da cui partire con l'ottimizzazione anneal-based.)}
 Specifically, given two classical input vectors $\vec{x}_i$ and $\vec{x}_j$, the quantum kernel evaluates the similarity between them by computing the fidelity (i.e., squared inner product) of their corresponding quantum states in Hilbert space.
 
 The typical procedure involves the following steps:
@@ -78,37 +89,37 @@ The typical procedure involves the following steps:
   \item The overlap between the states is then estimated by measuring the probability of the resulting state collapsing to the all-zero state, i.e., computing $|\langle\phi(\vec{x}_i)|\phi(\vec{x}_j)\rangle|^2$.
 \end{enumerate*}
 
-This procedure allows the definition of a kernel matrix $K$, where each entry $K_{ij}$ corresponds to the quantum fidelity between examples $\vec{x}_i$ and $\vec{x}_j$.
+This procedure allows the definition of a kernel matrix $K$, where each entry $K_{ij}$ corresponds to the quantum fidelity \LH{(C'è una descrizione intuitiva di ``fidelity'' in questo contesto? Tipo: ``We recall that in this context, fidelity means \ldots)} between examples $\vec{x}_i$ and $\vec{x}_j$.
 
-In our experiments, we evaluated various quantum kernels by tuning the following hyperparameters:
+In our experiments \LH{(A cosa sono finalizzati gli esperimenti? Intuitivamente, ti serviranno per capire cosa succede quando completi la pipeline con l'ottimizzazione quantistica. Forse, si questi esperimenti e parametri vale la pena parlarne nella sezinoe in cui parli dei risultati, inquadrando meglio le ipotesi di lavoro)}, we evaluated various quantum kernels by tuning the following hyperparameters:
 \todo{f\_map: Aggiungere foto di zz\_feature\_map e z\_feature\_map\\entanglement: Aggiungere foto con entanglement linear e full}
 \begin{description}
-  \item[Number of qubits available:] 
+  \item[Number of qubits available:]
   Determines the upper limit of encodable features. When the number of qubits was insufficient, we applied Principal Component Analysis (PCA) to project the data into an \emph{n}-dimensional subspace capturing the most relevant variance.
 
-  \item[Feature map:] 
+  \item[Feature map:]
   The quantum circuit responsible for encoding classical data into quantum states. These circuits determine the geometry of the induced Hilbert space and affect model expressivity.
 
-  \item[Repetitions of the feature map:] 
+  \item[Repetitions of the feature map:]
   Defines how many times the feature map circuit is applied in sequence. Increasing repetitions enhances the circuit's expressiveness but also deepens the circuit, which may lead to increased noise on real hardware.
 
-  \item[Qubit entanglement:] 
+  \item[Qubit entanglement:]
   Specifies the entanglement pattern among qubits. This directly impacts the circuit's ability to capture correlations between features.
 \end{description}
 
 \todo{Aggiungere osservazioni sulle performance e i parametri selezionati dei kernel}
 
+%---------------------
 \section{Quantum Annealing Support Vector Machine}
 
 Annealing-based quantum computing naturally addresses quadratic optimization problems, particularly those formulated as QUBO (Quadratic Unconstrained Binary Optimization) instances.
-The dual form of the support vector machine (SVM) problem\cite{svm} leads to a quadratic objective, which can be adapted to QUBO by incorporating constraints into the objective function and converting variables into binary form.
+The dual form of the support vector machine (SVM) problem\cite{svm} leads to a \LH{multivariate} quadratic \LH{polynomial which is the} objective \LH{function to minimize/optimize which, after incorporating constraints-as-penalties, converted variables into their binary expansion form become a QUBO model.}\LHs{, which can be adapted to QUBO by incorporating constraints into the objective function and converting variables into binary form.}
 
-Constraint incorporation is typically achieved through Lagrangian relaxation\cite{lagrangian_relaxation}. 
+Constraint incorporation is typically achieved through Lagrangian relaxation\cite{lagrangian_relaxation}.
 However, the binarization process is less straightforward due to the continuous nature of the optimization variables, which lie in $\mathbb{R}$.
-
-Integer variables can be automatically encoded in binary format, provided that an upper bound is defined for each variable. 
+\LH{On one side, } integer variables can be automatically encoded in binary format, provided that an upper bound is defined for each variable.
 This additional hyperparameter is crucial, as omitting it would result in each variable being represented with 64 bits by default, leading to problems that exceed the capacity of current quantum annealers.
-While the binarization of real-valued variables incurs significantly more overhead.
+\LH{On the other,} the binarization of real-valued variables incurs significantly more overhead.
 
 Empirically, we found that treating all optimization variables as integers yields a degradation in model performance of less than one percentage point.
 This trade-off led us to favor an approximated yet more hardware-efficient formulation during model generation.
