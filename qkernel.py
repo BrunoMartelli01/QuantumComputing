@@ -14,7 +14,7 @@ class FeatureMapKind(Enum):
     SU2HR = 3
 
 
-def get_quantum_kernel(f_map_name, num_qubits, reps, entanglement, shots=5):
+def get_quantum_kernel(f_map_name, num_qubits, reps, entanglement='linear', shots=5):
     assert entanglement in ['linear', 'circular', 'full'], 'Invalid entanglement'
     assert f_map_name in FeatureMapKind, 'Invalid feature map name'
 
