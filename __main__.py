@@ -9,11 +9,11 @@ from qsvm import QASVM
 def main():
     train_features, test_features, train_labels, test_labels = get_dataset()
     kernel_params = [
-        {'num_qubits': 30, 'f_map': FeatureMapKind.SU2HR, 'reps': 1},
-        {'num_qubits': 8, 'f_map': FeatureMapKind.ZMAP, 'reps': 3},
-        {'num_qubits': 8, 'f_map': FeatureMapKind.ZMAP, 'reps': 2},
-        {'num_qubits': 16, 'f_map': FeatureMapKind.SU2RR, 'reps': 1},
-        {'num_qubits': 8, 'f_map': FeatureMapKind.SU2RR, 'reps': 1},
+        {'num_qubits': 30, 'f_map_name': FeatureMapKind.SU2HR, 'reps': 1},
+        {'num_qubits': 8, 'f_map_name': FeatureMapKind.ZMAP, 'reps': 3},
+        {'num_qubits': 8, 'f_map_name': FeatureMapKind.ZMAP, 'reps': 2},
+        {'num_qubits': 16, 'f_map_name': FeatureMapKind.SU2RR, 'reps': 1},
+        {'num_qubits': 8, 'f_map_name': FeatureMapKind.SU2RR, 'reps': 1},
     ]
     svm_params = [7, 63, 255]
 
@@ -30,7 +30,7 @@ def main():
             svm = QASVM(big_c=big_c, kernel_func=lambda x, y: qkernel.evaluate(x, y))
             svm.fit(fix_train, train_labels)
             predictions = svm.predict(fix_test)
-            print('num_qubits:', k['num_qubits'], '- f_map:', k['f_map'].name, '- reps:', k['reps'])
+            print('num_qubits:', k['num_qubits'], '- f_map:', k['f_map_name'].name, '- reps:', k['reps'], '- C:', big_c)
             print(classification_report(test_labels, predictions))
 
 
