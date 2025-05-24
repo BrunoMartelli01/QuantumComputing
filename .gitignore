@@ -3,6 +3,7 @@ report/build
 *.csv
 *.txt
 !report/Copyright*.txt
+!requirements.txt
 *.log
 sketch.ipynb
 sketch.py

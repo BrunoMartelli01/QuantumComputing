@@ -4,11 +4,10 @@
 \linenumbers
 \usepackage[inline]{enumitem}
 \usepackage{physics}
-\usepackage{todonotes}
 \usepackage{graphicx}
-\usepackage{float}
 \usepackage{caption}
 \usepackage{subcaption}
+\usepackage{booktabs}
 
 \usepackage{ulem} % \sout
 \newcommand{\LH}[1]{\textcolor{blue}{{ #1}}}
@@ -29,7 +28,11 @@
 \cortext[1]{Corresponding author.}
 
 \begin{abstract}
-  TODO
+    This work presents a fully quantum approach to support vector machine (SVM) learning by integrating gate-based quantum kernel methods with quantum annealing-based optimization. 
+    We explore the construction of quantum kernels using various feature maps and qubit configurations, evaluating their suitability through Kernel-Target Alignment (KTA). 
+    The SVM dual problem is reformulated as a Quadratic Unconstrained Binary Optimization (QUBO) problem, enabling its solution via quantum annealers. 
+    Our experiments demonstrate that a high degree of alignment in the kernel and an appropriate regularization parameter lead to competitive performance, with the best model achieving an F1-score of 90\%. 
+    These results highlight the feasibility of an end-to-end quantum learning pipeline and the potential of hybrid quantum architectures in quantum high-performance computing (QHPC) contexts.
 \end{abstract}
 
 \begin{keywords}
@@ -45,14 +48,7 @@
 %---------------------
 \section{Introduction}
 
-Quantum computing ultimately aims to expand the boundaries of what is currently considered \LH{efficiently} computable.
-This goal can be pursued by focusing on two main directions:
-\begin{enumerate*}
-  \item Performing certain classes of computations more efficiently than classical computers;
-        \LH{(Aggiungendo ``efficiently'' potrebbe essere inutile inserire il punto 1)}
-  \item Enhancing the expressive capacity \LH{(occorre stabilire cosa intendi per ``expressive capacity'')} of currently adopted computational methods;
-\end{enumerate*}
-\todo{Alla fine, dopo aver letto tutta l'introduzione, togliere i punti 1 e 2 precedenti.}
+Quantum computing ultimately aims to expand the boundaries of what is currently considered efficiently computable.
 Among the various fields where such advancements appear promising is machine learning.
 
 When discussing quantum computing, it is essential to specify the computational paradigm being considered.
@@ -70,20 +66,19 @@ In the literature, the term \emph{Quantum Support Vector Machine (QSVM)} is used
 In the quantum annealing framework, QSVM refers to the use of classical kernels combined with a reformulation of the optimization problem to be solved via quantum annealing.
 In the gate-based approach, by contrast, quantum computing is employed to compute the kernels, while the optimization is handled by classical processors.
 
-This work aims to unify the aforementioned approaches to construct a fully quantum learning pipeline for support vector machines. \LH{(Avendo letto la sezione successiva, mi è venuto in mente che qui sarebbe utile dire in che direzione fai l'unificazione: quale parte classica fai diventare quantistica? È l'ottimizzazione, avendo gratis la generazione quantistica dei kernel del gate-based? Oppure è l'altra opzione? Penso sia la prima. )}
+This work aims to unify the aforementioned approaches to construct a fully quantum learning pipeline for support vector machines \LM{using a kernel based on quantum gates and a model optimisation process based on quantum annealing}.
 Moreover, the use of different types of QPUs enables experimentation within the domain of Quantum High Performance Computing (QHPC).
 In this domain, traditional CPU and GPU systems can collaborate with various QPUs—regardless of their underlying architecture—with the goal of addressing computationally intensive problems.
 
 %---------------------
-\section{Quantum Kernel \LH{(``A short recap about gate-based generated Quantum Kernels'' è un possibile titolo alternativo?)}}
+\section{A short recap about gate-based generated Quantum Kernels}
 
-\LH{(Se in precedenza specifichi che vuoi sfruttare la genereazione gate-based dei kernel, qui si potrebbe cominciare con qualcosa del tipo: ``This section recalls meaning and features of the workflow/results/non-so-di-preciso-cosa related to the generation/generated kernel by gate-based quantum algorithms.'' Cioè occorre dare lo scopo della sezione, anticipando i punti chiave.)}
+\LM{In this section, we recall the theoretical foundations underlying the construction of a gate-based quantum circuit employed to implement a quantum kernel.}
 
 The use of quantum kernels enables the mapping of input examples into a hyperspace of dimension $O(2^{\#\text{features}})$.
-This property stems from the fact that \LH{states formed by} qubits can \LHs{exist in a superposition of states} be superposed, \LHs{allowing the simultaneous representation of both $\ket{0}$ and $\ket{1}$} during a computation.
-However, this superposition is lost upon measurement, which—according to the postulates of quantum mechanics—\todo{valutare citazione sul collasso dell'onda \LH{Il riferimento al collasso è funzionale al nostro discorso?}}causes the wave function to collapse into one of the two basis states.
+This property stems from the fact that states formed by qubits can be superposed during a computation.
 
-Quantum kernel\todo{Citazione quantum kernel method} methods are based on the construction of a quantum circuit that is executed for each pair of input data points. \LH{(I suggerimenti precedenti erano volti a preparare il lettore sul fatto che qui stai descrivendo un'attività svolta con architetture gate-based da cui partire con l'ottimizzazione anneal-based.)}
+Quantum kernel\cite{qkernel} methods are based on the construction of a quantum circuit that is executed for each pair of input data points.
 
 Specifically, given two classical input vectors $\vec{x}_i$ and $\vec{x}_j$, the quantum kernel evaluates the similarity between them by computing the fidelity (i.e., squared inner product) of their corresponding quantum states in Hilbert space.
 
@@ -94,7 +89,37 @@ The typical procedure involves the following steps:
   \item The overlap between the states is then estimated by measuring the probability of the resulting state collapsing to the all-zero state, i.e., computing $|\langle\phi(\vec{x}_i)|\phi(\vec{x}_j)\rangle|^2$.
 \end{enumerate*}
 
-This procedure allows the definition of a kernel matrix $K$, where each entry $K_{ij}$ corresponds to the quantum fidelity \LH{(C'è una descrizione intuitiva di ``fidelity'' in questo contesto? Tipo: ``We recall that in this context, fidelity means \ldots)} between examples $\vec{x}_i$ and $\vec{x}_j$.
+This procedure allows the definition of a kernel matrix $K$, where each entry $K_{ij}$ corresponds to the \LM{similarity} between examples $\vec{x}_i$ and $\vec{x}_j$ \LM{mapped in kernel space}.
+
+%---------------------
+\section{Quantum Annealing Support Vector Machine}
+
+Annealing-based quantum computing naturally addresses quadratic optimization problems, particularly those formulated as QUBO (Quadratic Unconstrained Binary Optimization) instances.
+The dual formulation of the support vector machine (SVM) problem\cite{svm} leads to a \LM{multivariate quadratic polynomial, which serves as the objective function to be optimized.
+By incorporating constraints into the objective via penalty terms and converting continuous variables into their binary expansion, the problem can be reformulated as a QUBO model.}
+
+Constraint incorporation is typically achieved through Lagrangian relaxation\cite{lagrangian_relaxation}.
+However, the binarization process is less straightforward due to the continuous nature of the optimization variables, which lie in $\mathbb{R}$.
+On one hand, integer variables can be automatically encoded in binary format, provided that an upper bound is defined for each variable.
+This additional hyperparameter is crucial, as omitting it would result in each variable being represented with 64 bits by default, leading to problems that exceed the capacity of current quantum annealers.
+On the other hand, the binarization of real-valued variables incurs significantly more overhead.
+
+Empirically, we found that treating all optimization variables as integers yields a degradation in model performance of less than one percentage point.
+This trade-off led us to favor an approximated yet more hardware-efficient formulation during model generation.
+
+An additional hyperparameter of practical importance is the regularization parameter $C$, which controls the trade-off between maximizing the margin and minimizing classification errors.
+Higher values of $C$ emphasize correct classification of training examples, whereas lower values allow for a softer margin with more tolerance to misclassified points.
+
+%---------------------
+\section{Results}
+
+\LM{Both the design of a kernel and the optimization of the SVM dual problem require the selection of hyperparameters prior to training.
+Section \ref{sec:qkernel} presents our investigation into the parametrization of the quantum kernel with respect to the chosen dataset.
+Section \ref{sec:qasvm} reports on a set of experiments aimed at selecting the parameter $C$, assuming no kernel is employed during training.}
+
+\LM{Once the optimal hyperparameters for the individual components of the problem have been identified, Section \ref{sec:qkernel_and_qasvm} presents the results of the end-to-end learning pipeline for fully quantum SVMs—namely, those employing a kernel generated via quantum gates and optimization performed through quantum annealing.}
+
+\subsection{Finding a good Quantum Kernel}\label{sec:qkernel}
 
 \begin{figure}
   \centering
@@ -112,7 +137,7 @@ This procedure allows the definition of a kernel matrix $K$, where each entry $K
   \caption{Examples of feature maps on two qubits. In addition to those shown, the \texttt{z\_feature\_map} and \texttt{zz\_feature\_map} available in the \emph{Qiskit} library were used.}
 \end{figure}
 
-In our experiments \LH{(A cosa sono finalizzati gli esperimenti? Intuitivamente, ti serviranno per capire cosa succede quando completi la pipeline con l'ottimizzazione quantistica. Forse, di questi esperimenti e parametri vale la pena parlarne nella sezione in cui parli dei risultati, inquadrando meglio le ipotesi di lavoro)}, we evaluated various quantum kernels by tuning the following hyperparameters:
+To identify the optimal hyperparameters for the quantum kernel, we evaluated several values for the following parameters:
 \begin{description}
   \item[Number of qubits available:]
   Determines the upper limit of encodable features. When the number of qubits was insufficient, we applied Principal Component Analysis (PCA) to project the data into an \emph{n}-dimensional subspace capturing the most relevant variance.
@@ -125,58 +150,72 @@ In our experiments \LH{(A cosa sono finalizzati gli esperimenti? Intuitivamente,
   Defines how many times the feature map circuit is applied in sequence. Increasing repetitions enhances the circuit's expressiveness but also deepens the circuit, which may lead to increased noise on real hardware.
 \end{description}
 
-\LH{(Anche questa parte ancora più tecnica penso vada spostata. Poi vediamo)} To evaluate the quality of the kernel derived from the various feature maps, we employed the \textit{Kernel-Target Alignment} (KTA) strategy\cite{kta}.
+To evaluate the quality of the kernel derived from the various feature maps, we employed the \textit{Kernel-Target Alignment} (KTA) strategy\cite{kta}.
 This metric allows for estimating the effectiveness of a given kernel on a reference dataset without the need to train a machine learning model.
 
 Formally, given a kernel matrix $K \in \mathbb{R}^{n \times n}$ computed over a set of $n$ examples, and a label vector $\mathbf{y} \in \{-1, 1\}^n$, the KTA is defined as:
 
 $$\text{KTA}(K, \mathbf{y}) = \frac{\mathbf{y}^\top K \mathbf{y}}{\|K\|_F \cdot n}$$
-\noindent
 where $\|K\|_F$ denotes the Frobenius norm of the kernel matrix.
 This normalized inner product quantifies the alignment between the kernel matrix and the ideal target kernel implied by the labels.
 A higher value of KTA indicates a stronger alignment and, consequently, a potentially more suitable kernel for classification tasks.
 
+\LM{The top three configurations for the quantum kernel are reported in Table~\ref{tab:top_kernel}; all proposed configurations exhibit a high degree of alignment.
+In this study, no single hyperparameter emerged as universally optimal across configurations. 
+This is evidenced by the presence of both circuits with a large number of qubits and those with fewer qubits, deep circuits as well as shallow ones, and the use of three distinct feature maps.}
+
+\begin{table}
+  \centering
+  \caption{Top threen kernel configurations.}
+  \label{tab:top_kernel}
+  \begin{tabular}{ccccr}
+    \toprule
+    \textbf{\# Qubits} & \textbf{Feature Map} & \textbf{Repetitions} & \textbf{Alignment (KTA)} \\
+    \midrule
+    30 & SU2HR & 1 & 98.650\% \\
+    8  & ZMAP  & 2 & 93.558\% \\
+    16 & SU2RR & 1 & 91.203\% \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Selecting regularization parameter for Quantum Annealing SVM}\label{sec:qasvm}
+
+In our experiments, we explored a range of values for $C$ by selecting powers of two, from $2^2 - 1$ to $2^{12} - 1$.
+The choice of using powers of two minus one is motivated by the fact that the binarization process creates, for each optimization variable, $\log_2(C)$ binary variables.
+By setting $C$ to a power of two minus one, we ensure that the number of binary variables per original variable is minimized and evenly distributed, thereby optimizing the use of the limited number of qubits available on current quantum annealing hardware.
+
+We observed the best performance using regularization parameter values of $C = 7, 63, 255$.
+\LM{Nevertheless, the differences in performance across the various configurations are minimal, suggesting that—in the application context we investigated—the examples are likely to be linearly separable with not excessive rate.}
+
+\subsection{Fully Quantum SVM}\label{sec:qkernel_and_qasvm}
+
+\LM{By combining quantum kernels with optimization via quantum annealing, we constructed several QSVM models, obtaining a wide range of results.}
+
+\LM{The best-performing model was based on the kernel with the highest alignment (using 30 qubits) and a regularization parameter $C=255$. 
+In this case, we achieved an \texttt{F1-score} of 90\%.
+We also observed that the negative class exhibited higher \texttt{recall} but lower \texttt{precision}, whereas the opposite was true for the positive class.
+This suggests that the trained model suffers from classification issues that lead to the generation of false negatives.
+False negatives were found across all models, indicating that this is a systematic issue. 
+A more effective preprocessing phase would likely result in a uniform performance improvement across all configurations.}
+
+\LM{The model with the smallest number of qubits yielded the poorest results.
+Using only 8 qubits to encode the input features and setting $C=63$, the resulting \texttt{F1-score} was 52\%, making this model comparable to random guessing.
+This behavior may be attributed to an insufficient number of features used to represent the data: reducing from 30 to 8 qubits likely caused a significant loss of information, leading to examples becoming overly similar and thus harder to distinguish.}
+
 %---------------------
-\section{Quantum Annealing Support Vector Machine}
-
-Annealing-based quantum computing naturally addresses quadratic optimization problems, particularly those formulated as QUBO (Quadratic Unconstrained Binary Optimization) instances.
-The dual form of the support vector machine (SVM) problem\cite{svm} leads to a \LH{multivariate} quadratic \LH{polynomial which is the} objective \LH{function to minimize/optimize which, after incorporating constraints-as-penalties, converted variables into their binary expansion form become a QUBO model.}\LHs{, which can be adapted to QUBO by incorporating constraints into the objective function and converting variables into binary form.}
-
-Constraint incorporation is typically achieved through Lagrangian relaxation\cite{lagrangian_relaxation}.
-However, the binarization process is less straightforward due to the continuous nature of the optimization variables, which lie in $\mathbb{R}$.
-\LH{On one side, } integer variables can be automatically encoded in binary format, provided that an upper bound is defined for each variable.
-This additional hyperparameter is crucial, as omitting it would result in each variable being represented with 64 bits by default, leading to problems that exceed the capacity of current quantum annealers.
-\LH{On the other,} the binarization of real-valued variables incurs significantly more overhead.
-
-Empirically, we found that treating all optimization variables as integers yields a degradation in model performance of less than one percentage point.
-This trade-off led us to favor an approximated yet more hardware-efficient formulation during model generation.
-
-An additional hyperparameter of practical importance is the regularization parameter $C$, which controls the trade-off between maximizing the margin and minimizing classification errors.
-Higher values of $C$ emphasize correct classification of training examples, whereas lower values allow for a softer margin with more tolerance to misclassified points.
-
-In our experiments, we explored a range of values for $C$ by selecting powers of two, from $2^1$ to $2^{12}$.
-The choice of using powers of two is motivated by the fact that the binarization process creates, for each optimization variable, $\log_2(C)$ binary variables.
-By setting $C$ to a power of two, we ensure that the number of binary variables per original variable is minimized and evenly distributed, thereby optimizing the use of the limited number of qubits available on current quantum annealing hardware.
-
-\section{A Complete QSVM}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Top 5 kernel params:
-% Qubit, Feature map, Map repetitions, Alignment
-% 1. 30, SU2HR, 1, 98.650\%
-% 2. 8, ZMAP, 3, 93.981\%
-% 3. 8, ZMAP, 2, 93.558\%
-% 4. 16, SU2RR, 1, 91.203\%
-% 5. 8, SU2RR, 1, 89.596\%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Top 3 C params:
-% 1. 7
-% 2. 63
-% 3. 255
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \section{Conclusion}
 
+\LM{In this study, we have explored the feasibility and effectiveness of constructing an end-to-end quantum learning pipeline for support vector machines. 
+By integrating gate-based quantum kernel methods with quantum annealing-based optimization, we demonstrated that it is possible to train a fully quantum SVM model on real-world datasets.}
+
+\LM{Our results show that the choice of quantum kernel—particularly the number of qubits and the selected feature map—significantly influences classification performance. 
+Furthermore, we observed that the approximation involved in representing real-valued optimization variables with discrete binary variables in the QUBO formulation does not lead to substantial performance degradation.}
+
+\LM{The best-performing configuration, employing 30 qubits and a regularization parameter $C=255$, achieved an F1-score of 90\%. 
+However, the presence of systematic false negatives suggests that further improvements could be achieved with a more refined data preprocessing pipeline.}
+
+\LM{This work opens the door for future investigations into scalable quantum machine learning pipelines and highlights the role of quantum high-performance computing in facilitating hybrid computational workflows across diverse quantum architectures.}
 \bibliography{refs.bib}
 
 \end{document}

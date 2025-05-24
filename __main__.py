@@ -10,12 +10,10 @@ def main():
     train_features, test_features, train_labels, test_labels = get_dataset()
     kernel_params = [
         {'num_qubits': 30, 'f_map_name': FeatureMapKind.SU2HR, 'reps': 1},
-        {'num_qubits': 8, 'f_map_name': FeatureMapKind.ZMAP, 'reps': 3},
         {'num_qubits': 8, 'f_map_name': FeatureMapKind.ZMAP, 'reps': 2},
         {'num_qubits': 16, 'f_map_name': FeatureMapKind.SU2RR, 'reps': 1},
-        {'num_qubits': 8, 'f_map_name': FeatureMapKind.SU2RR, 'reps': 1},
     ]
-    svm_params = [7, 63, 255]
+    svm_params = [3, 15, 63, 255, 2047]
 
     for k in kernel_params:
         if k['num_qubits'] != train_features.shape[1]:

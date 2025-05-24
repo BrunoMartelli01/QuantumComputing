@@ -1,0 +1,10 @@
+dimod==0.12.20
+dwave-samplers==1.5.0
+numpy==2.2.5
+pandas==2.2.3
+pyomo==6.9.2
+qiskit==1.4.3
+qiskit-aer==0.17.0
+qiskit-machine-learning==0.8.2
+scikit-learn==1.6.1
+tqdm==4.67.1
