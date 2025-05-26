@@ -28,10 +28,10 @@
 \cortext[1]{Corresponding author.}
 
 \begin{abstract}
-    This work presents a fully quantum approach to support vector machine (SVM) learning by integrating gate-based quantum kernel methods with quantum annealing-based optimization. 
-    We explore the construction of quantum kernels using various feature maps and qubit configurations, evaluating their suitability through Kernel-Target Alignment (KTA). 
-    The SVM dual problem is reformulated as a Quadratic Unconstrained Binary Optimization (QUBO) problem, enabling its solution via quantum annealers. 
-    Our experiments demonstrate that a high degree of alignment in the kernel and an appropriate regularization parameter lead to competitive performance, with the best model achieving an F1-score of 90\%. 
+    This work presents a fully quantum approach to support vector machine (SVM) learning by integrating gate-based quantum kernel methods with quantum annealing-based optimization.
+    We explore the construction of quantum kernels using various feature maps and qubit configurations, evaluating their suitability through Kernel-Target Alignment (KTA).
+    The SVM dual problem is reformulated as a Quadratic Unconstrained Binary Optimization (QUBO) problem, enabling its solution via quantum annealers.
+    Our experiments demonstrate that a high degree of alignment in the kernel and an appropriate regularization parameter lead to competitive performance, with the best model achieving an F1-score of 90\%.
     These results highlight the feasibility of an end-to-end quantum learning pipeline and the potential of hybrid quantum architectures in quantum high-performance computing (QHPC) contexts.
 \end{abstract}
 
@@ -66,30 +66,53 @@ In the literature, the term \emph{Quantum Support Vector Machine (QSVM)} is used
 In the quantum annealing framework, QSVM refers to the use of classical kernels combined with a reformulation of the optimization problem to be solved via quantum annealing.
 In the gate-based approach, by contrast, quantum computing is employed to compute the kernels, while the optimization is handled by classical processors.
 
-This work aims to unify the aforementioned approaches to construct a fully quantum learning pipeline for support vector machines \LM{using a kernel based on quantum gates and a model optimisation process based on quantum annealing}.
-Moreover, the use of different types of QPUs enables experimentation within the domain of Quantum High Performance Computing (QHPC).
+This work aims to unify the aforementioned approaches to construct a fully quantum learning pipeline for support vector machines using a kernel based on quantum gates and a model optimisation process based on quantum annealing.
+\LH{Moreover, the use of different types of QPUs enables experimentation within the domain of Quantum High Performance Computing (QHPC).} \LH{(Possibile alternativa alla frase precedente: ``We see a single pipeline integrating the use of gate-based and quantum-annealing based QPUs as a concrete contribution to the area of Quantum High Performance Computing (QHPC)''?)}
 In this domain, traditional CPU and GPU systems can collaborate with various QPUs—regardless of their underlying architecture—with the goal of addressing computationally intensive problems.
 
 %---------------------
 \section{A short recap about gate-based generated Quantum Kernels}
 
-\LM{In this section, we recall the theoretical foundations underlying the construction of a gate-based quantum circuit employed to implement a quantum kernel.}
+%In this section, we briefly recall the theoretical foundations underlying the construction of a gate-based quantum circuit employed to implement a quantum kernel.
+%
+%\LH{(1)} The use of quantum kernels enables the mapping of input examples into a hyperspace of dimension $O(2^{\#\text{features}})$.
+%This property stems from the fact that states formed by qubits can be superposed during a computation.
+%
+%\LH{(2)} Quantum kernel \cite{qkernel} methods are based on the construction of a quantum circuit that is executed for each pair of input data points.
+%
+%\LH{(3)} Specifically, given two classical input vectors $\vec{x}_i$ and $\vec{x}_j$, the quantum kernel evaluates the similarity between them by computing the fidelity (i.e., squared inner product) of their corresponding quantum states in Hilbert space.
+%
+%\LH{(4)}  The typical procedure involves the following steps:
+%\begin{enumerate*}
+%  \item Each input $\vec{x}$ is encoded into a quantum state $\ket{\phi(\vec{x})}$ using a feature map circuit;
+%  \item For each pair $(\vec{x}_i, \vec{x}_j)$, a quantum circuit is constructed to prepare the state $\ket{\phi(\vec{x}_i)}$, followed by the inverse of the circuit that prepares $\ket{\phi(\vec{x}_j)}$;
+%  \item The overlap between the states is then estimated by measuring the probability of the resulting state collapsing to the all-zero state, i.e., computing $|\langle\phi(\vec{x}_i)|\phi(\vec{x}_j)\rangle|^2$.
+%\end{enumerate*}
+%
+%This procedure allows the definition of a kernel matrix $K$, where each entry $K_{ij}$ corresponds to the \LM{similarity} between examples $\vec{x}_i$ and $\vec{x}_j$ \LM{mapped in kernel space}.
 
-The use of quantum kernels enables the mapping of input examples into a hyperspace of dimension $O(2^{\#\text{features}})$.
-This property stems from the fact that states formed by qubits can be superposed during a computation.
+% LUCA ================================
+This section briefly recalls the main steps to construct a gate-based quantum circuit that implements a quantum kernel.
 
-Quantum kernel\cite{qkernel} methods are based on the construction of a quantum circuit that is executed for each pair of input data points.
+Let $V$ be a set of input vectors.
+\begin{enumerate}
+  \item \LH{(È corretto??)} Each $\vec{x}\in V$ is interpreted as a quantum state $\ket{\phi(\vec{x})}$ by means of a quantum circuit $\phi(\vec{x})$;
+  \item For each pair $(\vec{x}_i, \vec{x}_j)$,  the quantum circuit $\phi(\vec{x}_i);(\phi(\vec{x}_j))^{-1}$ is constructed. It pipelines $\phi(\vec{x}_i)$, building the state $\ket{\phi(\vec{x}_i)}$, with the inverse $(\phi(\vec{x}_j))^{-1}$ of $\phi(\vec{x}_j)$, building the state $\ket{\phi(\vec{x}_j)}$;
+  \item The overlap between the states $\ket{\phi(\vec{x}_i)}$ and $\ket{\phi(\vec{x}_j)}$ is estimated by measuring the probability of the resulting state collapsing to the all-zero state, i.e., computing $|\langle\phi(\vec{x}_i)|\phi(\vec{x}_j)\rangle|^2$.
+\end{enumerate}
+\noindent
+This procedure allows the definition of a kernel matrix $K$. Each entry $K_{ij}$ corresponds to the \LM{similarity} between  $\vec{x}_i$ and $\vec{x}_j$ \LH{``measured'' after their representation as quantum states $\ket{\phi(\vec{x}_i)}$ and $\ket{\phi(\vec{x}_j)}$}.
 
-Specifically, given two classical input vectors $\vec{x}_i$ and $\vec{x}_j$, the quantum kernel evaluates the similarity between them by computing the fidelity (i.e., squared inner product) of their corresponding quantum states in Hilbert space.
+Intuitively, the speed-up to construct $K$ of the above method, compared to equivalent classical algorithms, follows from superposing -- hence ``compressing'' -- a vector space, potentially with dimension $O(2^{\#\text{features}})$.
 
-The typical procedure involves the following steps:
-\begin{enumerate*}
-  \item Each input $\vec{x}$ is encoded into a quantum state $\ket{\phi(\vec{x})}$ using a feature map circuit;
-  \item For each pair $(\vec{x}_i, \vec{x}_j)$, a quantum circuit is constructed to prepare the state $\ket{\phi(\vec{x}_i)}$, followed by the inverse of the circuit that prepares $\ket{\phi(\vec{x}_j)}$;
-  \item The overlap between the states is then estimated by measuring the probability of the resulting state collapsing to the all-zero state, i.e., computing $|\langle\phi(\vec{x}_i)|\phi(\vec{x}_j)\rangle|^2$.
-\end{enumerate*}
+\LHs{Quantum kernel \cite{qkernel} methods are based on the construction of a quantum circuit that is executed for each pair of input data points.}
 
-This procedure allows the definition of a kernel matrix $K$, where each entry $K_{ij}$ corresponds to the \LM{similarity} between examples $\vec{x}_i$ and $\vec{x}_j$ \LM{mapped in kernel space}.
+\LHs{The use of quantum kernels enables the mapping of input examples into a hyperspace of dimension $O(2^{\#\text{features}})$. This property stems from the fact that states formed by qubits can be superposed during a computation.}
+% LUCA ================================
+
+
+
+
 
 %---------------------
 \section{Quantum Annealing Support Vector Machine}
@@ -107,17 +130,17 @@ On the other hand, the binarization of real-valued variables incurs significantl
 Empirically, we found that treating all optimization variables as integers yields a degradation in model performance of less than one percentage point.
 This trade-off led us to favor an approximated yet more hardware-efficient formulation during model generation.
 
-An additional hyperparameter of practical importance is the regularization parameter $C$, which controls the trade-off between maximizing the margin and minimizing classification errors.
+An additional hyperparameter of practical importance is a \emph{regularization parameter} $C$. It controls the trade-off between maximizing the margin \LH{(Magari è terminologia standard, ma può aiutare dire ``margin di cosa''?)} and minimizing classification errors.
 Higher values of $C$ emphasize correct classification of training examples, whereas lower values allow for a softer margin with more tolerance to misclassified points.
 
 %---------------------
 \section{Results}
 
-\LM{Both the design of a kernel and the optimization of the SVM dual problem require the selection of hyperparameters prior to training.
+Both the design of a kernel and the optimization of the SVM dual \LH{(In questo contesto vale la pena specificare che è il problema duale? ``dual'' l'hai usata anche prima)} problem require the selection of hyperparameters prior to training.
 Section \ref{sec:qkernel} presents our investigation into the parametrization of the quantum kernel with respect to the chosen dataset.
-Section \ref{sec:qasvm} reports on a set of experiments aimed at selecting the parameter $C$, assuming no kernel is employed during training.}
+Section \ref{sec:qasvm} reports on a set of experiments aimed at selecting the parameter $C$, assuming no kernel is employed during training.
 
-\LM{Once the optimal hyperparameters for the individual components of the problem have been identified, Section \ref{sec:qkernel_and_qasvm} presents the results of the end-to-end learning pipeline for fully quantum SVMs—namely, those employing a kernel generated via quantum gates and optimization performed through quantum annealing.}
+Once the optimal hyperparameters for the individual components of the problem have been identified, Section \ref{sec:qkernel_and_qasvm} presents the results of the end-to-end learning pipeline for fully quantum SVMs—namely, those employing a kernel generated via quantum gates and optimization performed through quantum annealing.
 
 \subsection{Finding a good Quantum Kernel}\label{sec:qkernel}
 
@@ -149,6 +172,9 @@ To identify the optimal hyperparameters for the quantum kernel, we evaluated sev
   \item[Repetitions of the feature map:]
   Defines how many times the feature map circuit is applied in sequence. Increasing repetitions enhances the circuit's expressiveness but also deepens the circuit, which may lead to increased noise on real hardware.
 \end{description}
+\noindent
+
+\LH{Sono arrivato sin qui. Ora devo dare retta a Pensa... Forse riprendo stasera}
 
 To evaluate the quality of the kernel derived from the various feature maps, we employed the \textit{Kernel-Target Alignment} (KTA) strategy\cite{kta}.
 This metric allows for estimating the effectiveness of a given kernel on a reference dataset without the need to train a machine learning model.
@@ -161,7 +187,7 @@ This normalized inner product quantifies the alignment between the kernel matrix
 A higher value of KTA indicates a stronger alignment and, consequently, a potentially more suitable kernel for classification tasks.
 
 \LM{The top three configurations for the quantum kernel are reported in Table~\ref{tab:top_kernel}; all proposed configurations exhibit a high degree of alignment.
-In this study, no single hyperparameter emerged as universally optimal across configurations. 
+In this study, no single hyperparameter emerged as universally optimal across configurations.
 This is evidenced by the presence of both circuits with a large number of qubits and those with fewer qubits, deep circuits as well as shallow ones, and the use of three distinct feature maps.}
 
 \begin{table}
@@ -192,11 +218,11 @@ We observed the best performance using regularization parameter values of $C = 7
 
 \LM{By combining quantum kernels with optimization via quantum annealing, we constructed several QSVM models, obtaining a wide range of results.}
 
-\LM{The best-performing model was based on the kernel with the highest alignment (using 30 qubits) and a regularization parameter $C=255$. 
+\LM{The best-performing model was based on the kernel with the highest alignment (using 30 qubits) and a regularization parameter $C=255$.
 In this case, we achieved an \texttt{F1-score} of 90\%.
 We also observed that the negative class exhibited higher \texttt{recall} but lower \texttt{precision}, whereas the opposite was true for the positive class.
 This suggests that the trained model suffers from classification issues that lead to the generation of false negatives.
-False negatives were found across all models, indicating that this is a systematic issue. 
+False negatives were found across all models, indicating that this is a systematic issue.
 A more effective preprocessing phase would likely result in a uniform performance improvement across all configurations.}
 
 \LM{The model with the smallest number of qubits yielded the poorest results.
@@ -206,13 +232,13 @@ This behavior may be attributed to an insufficient number of features used to re
 %---------------------
 \section{Conclusion}
 
-\LM{In this study, we have explored the feasibility and effectiveness of constructing an end-to-end quantum learning pipeline for support vector machines. 
+\LM{In this study, we have explored the feasibility and effectiveness of constructing an end-to-end quantum learning pipeline for support vector machines.
 By integrating gate-based quantum kernel methods with quantum annealing-based optimization, we demonstrated that it is possible to train a fully quantum SVM model on real-world datasets.}
 
-\LM{Our results show that the choice of quantum kernel—particularly the number of qubits and the selected feature map—significantly influences classification performance. 
+\LM{Our results show that the choice of quantum kernel—particularly the number of qubits and the selected feature map—significantly influences classification performance.
 Furthermore, we observed that the approximation involved in representing real-valued optimization variables with discrete binary variables in the QUBO formulation does not lead to substantial performance degradation.}
 
-\LM{The best-performing configuration, employing 30 qubits and a regularization parameter $C=255$, achieved an F1-score of 90\%. 
+\LM{The best-performing configuration, employing 30 qubits and a regularization parameter $C=255$, achieved an F1-score of 90\%.
 However, the presence of systematic false negatives suggests that further improvements could be achieved with a more refined data preprocessing pipeline.}
 
 \LM{This work opens the door for future investigations into scalable quantum machine learning pipelines and highlights the role of quantum high-performance computing in facilitating hybrid computational workflows across diverse quantum architectures.}
