@@ -1,4 +1,4 @@
-from tqdm.notebook import tqdm
+from tqdm import tqdm
 from dataset import get_dataset
 from qkernel import get_quantum_kernel, FeatureMapKind
 import numpy as np
@@ -30,7 +30,7 @@ def search_seed():
         if new_diff < curr_diff:
             curr_diff, selected_prime = new_diff, p
 
-    return selected_prime, curr_diff
+    print(f'LOG: best seed: {selected_prime} with max error: {curr_diff}')
 
 
 """
