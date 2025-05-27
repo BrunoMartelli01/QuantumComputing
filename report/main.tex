@@ -81,19 +81,22 @@ Let $V$ be a set of input vectors.
   \item For each pair $(\vec{x}_i, \vec{x}_j)$,  the quantum circuit $\phi(\vec{x}_i);(\phi(\vec{x}_j))^{-1}$ is constructed. It pipelines $\phi(\vec{x}_i)$, building the state $\ket{\phi(\vec{x}_i)}$, with the inverse $(\phi(\vec{x}_j))^{-1}$ of $\phi(\vec{x}_j)$, building the state $\ket{\phi(\vec{x}_j)}$;
   \item The overlap between the states $\ket{\phi(\vec{x}_i)}$ and $\ket{\phi(\vec{x}_j)}$ is estimated by measuring the probability of the resulting state collapsing to the all-zero state, i.e., computing $|\langle\phi(\vec{x}_i)|\phi(\vec{x}_j)\rangle|^2$.
 \end{enumerate}
-This procedure allows the definition of a kernel matrix $K$. Each entry $K_{ij}$ corresponds to the similarity between  $\vec{x}_i$ and $\vec{x}_j$ as inferred from their representation as quantum states $\ket{\phi(\vec{x}_i)}$ and $\ket{\phi(\vec{x}_j)}$.
+This procedure leads to define a kernel matrix $K$ such that each entry $K_{ij}$ corresponds to the similarity between  $\vec{x}_i$ and $\vec{x}_j$ as inferred from their representation as quantum states $\ket{\phi(\vec{x}_i)}$ and $\ket{\phi(\vec{x}_j)}$.
+Intuitively, the advantage of constructing $K$ as above lies in the ability of quantum kernels to exploit qubit entanglement and state superposition to compress the number of qubits required. Adding a single qubit to the feature map $\phi$ doubles the dimensionality of the space to which the input $x_i$ is mapped.
 
-\LM{Intuitively, the advantage of constructing the matrix $K$, which represents the similarities between examples, using the method described above, lies in the ability of quantum kernels to exploit qubit entanglement and state superposition. 
-This allows for a compression in the number of qubits required, as adding a single qubit to the feature map $\phi$ doubles the dimensionality of the space to which the input $x_i$ is mapped.}
+
+
+%\LM{Intuitively, the advantage of constructing the matrix $K$, which represents the similarities between examples, using the method described above, lies in the ability of quantum kernels to exploit qubit entanglement and state superposition.
+%This allows for a compression in the number of qubits required, as adding a single qubit to the feature map $\phi$ doubles the dimensionality of the space to which the input $x_i$ is mapped.}
 
 %---------------------
 \section{Quantum Annealing Support Vector Machine}
 
 Annealing-based quantum computing naturally addresses quadratic optimization problems, particularly those formulated as QUBO (Quadratic Unconstrained Binary Optimization) instances.
-The dual formulation of the support vector machine (SVM) problem\cite{svm} leads to a multivariate quadratic polynomial, which serves as the objective function to be optimized.
+The dual formulation of the support vector machine (SVM) problem \cite{svm} leads to a multivariate quadratic polynomial, which serves as the objective function to be optimized.
 By incorporating constraints into the objective via penalty terms and converting continuous variables into their binary expansion, the problem can be reformulated as a QUBO model.
 
-Constraint incorporation is typically achieved through Lagrangian relaxation\cite{lagrangian_relaxation}.
+Constraint incorporation is typically achieved through Lagrangian relaxation \cite{lagrangian_relaxation}.
 However, the binarization process is less straightforward due to the continuous nature of the optimization variables, which lie in $\mathbb{R}$.
 On one hand, integer variables can be automatically encoded in binary format, provided that an upper bound is defined for each variable.
 This additional hyperparameter is crucial, as omitting it would result in each variable being represented with 64 bits by default, leading to problems that exceed the capacity of current quantum annealers.
@@ -148,21 +151,21 @@ To identify the optimal hyperparameters to find a quantum kernel, we evaluated s
 
   \item[Feature map:]
   The quantum circuit responsible for encoding classical data into quantum states. These circuits determine the geometry of the induced Hilbert space and affect model expressivity.
-  Figure~\ref{fig:map_a}, Figure~\ref{fig:map_b} and Figure~\ref{fig:map_c} shows a couple of possible feature maps.
+  Figure~\ref{fig:map_a}, Figure~\ref{fig:map_b} and Figure~\ref{fig:map_c} \LHs{shows a couple} \LH{are three examples} of possible feature maps.
 
   \item[Repetitions of the feature map:]
   Defines how many times the feature map circuit is applied in sequence.
-  \LM{The reason repetitions of the same feature map may be required is that, in certain cases, a single application is not sufficient to capture the desired non-linear transformation $\phi(\vec{x})$. 
+  The reason repetitions of the same feature map may be required is that, in certain cases, a single application is not sufficient to capture the desired non-linear transformation $\phi(\vec{x})$.
   This layered construction is analogous to deep architectures in classical machine learning, where increasing depth enhances representational capacity.
-  Figure~\ref{fig:map_c} shows a \texttt{ZZ\_feature\_map} repeated twice.}
+  Figure~\ref{fig:map_c} shows a \texttt{ZZ\_feature\_map} repeated twice.
 \end{description}
 \noindent
-To evaluate the quality of the kernel derived from the various feature maps, we employed the \textit{Kernel-Target Alignment} (KTA) strategy\cite{kta}.
+To evaluate the quality of the kernel derived from the various feature maps, we employed the \textit{Kernel-Target Alignment} (KTA) strategy \cite{kta}.
 This metric allows for estimating the effectiveness of a given kernel on a reference dataset without the need to train a machine learning model.
 
 Formally, given a kernel matrix $K \in \mathbb{R}^{n \times n}$ computed over a set of $n$ examples, and a label vector $\mathbf{y} \in \{-1, 1\}^n$, the KTA is defined as:
 
-$$\text{KTA}(K, \mathbf{y}) = \frac{\mathbf{y}^\top K \mathbf{y}}{\|K\|_F \cdot n}$$
+$$\text{KTA}(K, \mathbf{y}) = \frac{\mathbf{y}^\top K\ \mathbf{y}}{\|K\|_F \cdot n}$$
 where $\|K\|_F$ denotes the Frobenius norm of the kernel matrix.
 This normalized inner product quantifies the alignment between the kernel matrix and the ideal target kernel implied by the labels.
 A higher value of KTA indicates a stronger alignment and, consequently, a potentially more suitable kernel for classification tasks.
@@ -173,7 +176,7 @@ This is evidenced by the presence of both circuits with a large number of qubits
 
 \begin{table}
   \centering
-  \caption{Top threen kernel configurations.}
+  \caption{Top three kernel configurations.}
   \label{tab:top_kernel}
   \begin{tabular}{ccccr}
     \toprule
@@ -188,25 +191,25 @@ This is evidenced by the presence of both circuits with a large number of qubits
 
 \subsection{Selecting regularization parameter for Quantum Annealing SVM}\label{sec:qasvm}
 
-\LM{In our experiments, we explored a range of values for $C$ by selecting powers of two, from $2^2 - 1$ to $2^{12} - 1$. 
+In our experiments, we explored a range of values for $C$ by selecting powers of two, from $2^2 - 1$ to $2^{12} - 1$.
 This choice is motivated by the way optimization variables are encoded in our quantum annealing formulation of SVMs. Specifically, each continuous optimization variable is discretized and represented using $\log_2(C)$ binary variables.
 By choosing $C$ as $2^b-1$, where $b$ is the number of bits used, we ensure that the integer values these binary variables can represent range from 0 to $C$, thereby fully utilizing all possible bit combinations.
-This approach minimizes the number of unused configurations in the binary encoding and ensures a compact and efficient use of the available qubits, which is crucial given the hardware limitations of current quantum annealers.}
+This approach minimizes the number of unused configurations in the binary encoding and ensures a compact and efficient use of the available qubits, which is crucial given the hardware limitations of current quantum annealers.
 
 We observed the best performance using regularization parameter values of $C = 7, 63, 255$.
 Nevertheless, the differences in performance across the various configurations are minimal, suggesting that—in the application context we investigated—the examples are likely to be linearly separable with not excessive rate.
 
 \subsection{Fully Quantum SVM}\label{sec:qkernel_and_qasvm}
 
-\LM{By combining quantum kernels with optimization via quantum annealing, we constructed several QSVM models, aimed at learning decision boundaries that separate data classes in a feature space implicitly defined by the quantum kernel. 
-These models are designed to solve supervised classification tasks by learning a hyperplane that separates samples belonging to the positive class from those of the negative class.}
+By combining quantum kernels with optimization via quantum annealing, we constructed several QSVM models, aimed at learning decision boundaries that separate data classes in a feature space implicitly defined by the quantum kernel.
+These models are designed to solve supervised classification tasks by learning a hyperplane that separates samples belonging to the positive class from those of the negative class.
 
 The best-performing model was based on the kernel with the highest alignment (see Table~\ref{tab:top_kernel}), specifically the kernel constructed using 30 qubits and, among the candidate values introduced in Section~\ref{sec:qasvm}, a regularization parameter of $C=255$.
 In this case, we achieved an \texttt{F1-score} of 90\%.
 We also observed that the negative class exhibited higher \texttt{recall} but lower \texttt{precision}, whereas the opposite was true for the positive class.
 This suggests that the trained model suffers from classification issues that lead to the generation of false negatives.
 False negatives were found across all models, indicating that this is a systematic issue.
-A more effective preprocessing phase would likely result in a uniform performance improvement across all configurations.
+\LH{As usual(?), } a more effective preprocessing phase would likely result in a uniform performance improvement across all configurations.
 
 The model with the smallest number of qubits yielded the poorest results.
 Using only 8 qubits to encode the input features and setting $C=63$, the resulting \texttt{F1-score} was 52\%, making this model comparable to random guessing.
@@ -222,9 +225,9 @@ Our results show that the choice of quantum kernel—particularly the number of 
 Furthermore, we observed that the approximation involved in representing real-valued optimization variables with discrete binary variables in the QUBO formulation does not lead to substantial performance degradation.
 
 The best-performing configuration, employing 30 qubits and a regularization parameter $C=255$, achieved an F1-score of 90\%.
-However, the presence of systematic false negatives suggests that further improvements could be achieved with a more refined data preprocessing pipeline. 
-\LM{While incorporating domain knowledge about the origin and nature of the training and test datasets could also be beneficial, we believe that the most effective improvements are likely to come from enhanced preprocessing strategies or the use of larger and more representative datasets. 
-At present, however, increasing the dataset size is not feasible due to the computational cost associated with evaluating the quantum kernel, which scales unfavorably with the number of samples.}
+However, the presence of systematic false negatives suggests that further improvements could be achieved with a more refined data preprocessing pipeline.
+While incorporating domain knowledge about the origin and nature of the training and test datasets could also be beneficial, we believe that the most effective improvements are likely to come from enhanced preprocessing strategies or the use of larger and more representative datasets.
+At present, however, increasing the dataset size is not feasible due to the computational cost associated with evaluating the quantum kernel, which scales unfavorably with the number of samples.
 
 This work is a first step towards future investigations into scalable quantum machine learning pipelines and highlights the role of quantum high-performance computing in facilitating hybrid computational workflows across diverse quantum architectures.
 
