@@ -83,7 +83,8 @@ Let $V$ be a set of input vectors.
 \end{enumerate}
 This procedure allows the definition of a kernel matrix $K$. Each entry $K_{ij}$ corresponds to the similarity between  $\vec{x}_i$ and $\vec{x}_j$ as inferred from their representation as quantum states $\ket{\phi(\vec{x}_i)}$ and $\ket{\phi(\vec{x}_j)}$.
 
-Intuitively, the advantage in constructing $K$ with the above method, compared to equivalent classical algorithms, follows from superposing — hence “compressing” — a vector space, potentially with dimension $O(2^\text{\#features})$, which enhances the expressive power of the resulting kernel. \LH{(Cosa si intende per ``expressive power''?)}
+\LM{Intuitively, the advantage of constructing the matrix $K$, which represents the similarities between examples, using the method described above, lies in the ability of quantum kernels to exploit qubit entanglement and state superposition. 
+This allows for a compression in the number of qubits required, as adding a single qubit to the feature map $\phi$ doubles the dimensionality of the space to which the input $x_i$ is mapped.}
 
 %---------------------
 \section{Quantum Annealing Support Vector Machine}
@@ -110,10 +111,10 @@ Higher values of $C$ emphasize correct classification of training examples, wher
 \section{Results}
 
 Both the design of a kernel and the optimization of the SVM problem require the selection of hyperparameters prior to training.
-Section \ref{sec:qkernel} presents our investigation into the parametrization of the \LH{contruction of a(?)} quantum kernel \LH{in the context of gate-based architectures,} with respect to \LHs{the} \LH{a(?)} chosen dataset.
-Section \ref{sec:qasvm} reports on a set of experiments aimed at selecting the parameter $C$ \LH{in the context of quantum-anneal based architectures,} assuming no kernel is employed during training.
+Section \ref{sec:qkernel} presents our investigation into the parametrization of the contruction of a quantum kernel in the context of gate-based architectures, with respect to a chosen dataset.
+Section \ref{sec:qasvm} reports on a set of experiments aimed at selecting the parameter $C$ in the context of quantum-anneal based architectures, assuming no kernel is employed during training.
 
-Once the optimal hyperparameters for the individual components of the problem have been \LH{indipendently} identified, Section \ref{sec:qkernel_and_qasvm} presents the results of the end-to-end learning pipeline for fully quantum SVMs—namely, those employing a kernel generated via quantum gates and optimization performed through quantum annealing.
+Once the optimal hyperparameters for the individual components of the problem have been indipendently identified, Section \ref{sec:qkernel_and_qasvm} presents the results of the end-to-end learning pipeline for fully quantum SVMs—namely, those employing a kernel generated via quantum gates and optimization performed through quantum annealing.
 
 \subsection{Finding a good Quantum Kernel}\label{sec:qkernel}
 
@@ -130,7 +131,14 @@ Once the optimal hyperparameters for the individual components of the problem ha
     \includegraphics[width=\linewidth]{imgs/rr_map.png}
     \subcaption{\texttt{SU2RR} feature map\label{fig:map_b}}
   \end{minipage}
-  \caption{Examples of feature maps on two qubits. In addition to those shown, the \texttt{z\_feature\_map} and \texttt{zz\_feature\_map} available in the \emph{Qiskit} library were used.}
+
+  \begin{minipage}[b]{\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{imgs/zz_3q_2r.png}
+    \subcaption{\texttt{ZZ} feature map repeated twice\label{fig:map_c}}
+  \end{minipage}
+
+  \caption{Examples of feature maps on two qubits.}
 \end{figure}
 
 To identify the optimal hyperparameters to find a quantum kernel, we evaluated several values for the following parameters:
@@ -140,10 +148,13 @@ To identify the optimal hyperparameters to find a quantum kernel, we evaluated s
 
   \item[Feature map:]
   The quantum circuit responsible for encoding classical data into quantum states. These circuits determine the geometry of the induced Hilbert space and affect model expressivity.
-  Figure~\ref{fig:map_a} and Figure~\ref{fig:map_b} shows a couple of possible feature maps.
+  Figure~\ref{fig:map_a}, Figure~\ref{fig:map_b} and Figure~\ref{fig:map_c} shows a couple of possible feature maps.
 
   \item[Repetitions of the feature map:]
-  Defines how many times the feature map circuit is applied in sequence \LH{(Esiste un possibile commento che renda intuitivo perché le features map si devono poter essere concatenate? Non basta una singola feature map per ottenere quello che prima abbiamo chiamato $\phi(\vec{x})$? Cioè una singola feature map non è $\phi$? Dalla Tabella sembra che la risposta è: ``in certi casi no''. Corretto?)}. Increasing repetitions enhances the circuit's expressiveness but also deepens the circuit, which may lead to increased noise on real hardware.
+  Defines how many times the feature map circuit is applied in sequence.
+  \LM{The reason repetitions of the same feature map may be required is that, in certain cases, a single application is not sufficient to capture the desired non-linear transformation $\phi(\vec{x})$. 
+  This layered construction is analogous to deep architectures in classical machine learning, where increasing depth enhances representational capacity.
+  Figure~\ref{fig:map_c} shows a \texttt{ZZ\_feature\_map} repeated twice.}
 \end{description}
 \noindent
 To evaluate the quality of the kernel derived from the various feature maps, we employed the \textit{Kernel-Target Alignment} (KTA) strategy\cite{kta}.
@@ -177,18 +188,20 @@ This is evidenced by the presence of both circuits with a large number of qubits
 
 \subsection{Selecting regularization parameter for Quantum Annealing SVM}\label{sec:qasvm}
 
-In our experiments, we explored a range of values for $C$ by selecting powers of two, from $2^2 - 1$ to $2^{12} - 1$. \LH{(Non mi è chiarissima la comunità di quelli che potrebbero leggere queste pagine. Se lo leggesse uno come me, avrebbe difficoltà nell'essere sicuro che quanto hai detto nella frase precedente significa: ``ho fissato una lunghezza $l$ potenza di 2, e ho preso vettori a caso di quella lunghezza per imparare la SVN''. Quanto è sbagliato? Si può aggiungere una contestualizzazione come quella appena suggerita, ovviamente corretta?)}
-The choice of using powers of two minus one is motivated by the fact that the binarization process creates, for each optimization variable, $\log_2(C)$ binary variables.
-By setting $C$ to a power of two minus one, we ensure that the number of binary variables per original variable is minimized and evenly distributed, thereby optimizing the use of the limited number of qubits available on current quantum annealing hardware.
+\LM{In our experiments, we explored a range of values for $C$ by selecting powers of two, from $2^2 - 1$ to $2^{12} - 1$. 
+This choice is motivated by the way optimization variables are encoded in our quantum annealing formulation of SVMs. Specifically, each continuous optimization variable is discretized and represented using $\log_2(C)$ binary variables.
+By choosing $C$ as $2^b-1$, where $b$ is the number of bits used, we ensure that the integer values these binary variables can represent range from 0 to $C$, thereby fully utilizing all possible bit combinations.
+This approach minimizes the number of unused configurations in the binary encoding and ensures a compact and efficient use of the available qubits, which is crucial given the hardware limitations of current quantum annealers.}
 
 We observed the best performance using regularization parameter values of $C = 7, 63, 255$.
 Nevertheless, the differences in performance across the various configurations are minimal, suggesting that—in the application context we investigated—the examples are likely to be linearly separable with not excessive rate.
 
 \subsection{Fully Quantum SVM}\label{sec:qkernel_and_qasvm}
 
-By combining quantum kernels with optimization via quantum annealing, we constructed several QSVM models \LH{(Che imparano cosa? Sono costruiti in analogia a benchmark tipici del machine learning? Altro?)}, obtaining a wide range of results.
+\LM{By combining quantum kernels with optimization via quantum annealing, we constructed several QSVM models, aimed at learning decision boundaries that separate data classes in a feature space implicitly defined by the quantum kernel. 
+These models are designed to solve supervised classification tasks by learning a hyperplane that separates samples belonging to the positive class from those of the negative class.}
 
-The best-performing model was based on the kernel with the highest alignment (using 30 qubits) \LH{(È ovvio in questo contesto cosa sia un allineamento basato su 30 qbit? Nel mondo classico gli allineamenti sono basati su bit?)} and a regularization parameter $C=255$.
+The best-performing model was based on the kernel with the highest alignment (see Table~\ref{tab:top_kernel}), specifically the kernel constructed using 30 qubits and, among the candidate values introduced in Section~\ref{sec:qasvm}, a regularization parameter of $C=255$.
 In this case, we achieved an \texttt{F1-score} of 90\%.
 We also observed that the negative class exhibited higher \texttt{recall} but lower \texttt{precision}, whereas the opposite was true for the positive class.
 This suggests that the trained model suffers from classification issues that lead to the generation of false negatives.
@@ -209,9 +222,11 @@ Our results show that the choice of quantum kernel—particularly the number of 
 Furthermore, we observed that the approximation involved in representing real-valued optimization variables with discrete binary variables in the QUBO formulation does not lead to substantial performance degradation.
 
 The best-performing configuration, employing 30 qubits and a regularization parameter $C=255$, achieved an F1-score of 90\%.
-However, the presence of systematic false negatives suggests that further improvements could be achieved with a more refined data preprocessing pipeline. \LH{(Può dipendere anche dal conoscere la natura/provenienza del training/test set, cioè dall'ambito che genera i dati da cui apprendere?)}
+However, the presence of systematic false negatives suggests that further improvements could be achieved with a more refined data preprocessing pipeline. 
+\LM{While incorporating domain knowledge about the origin and nature of the training and test datasets could also be beneficial, we believe that the most effective improvements are likely to come from enhanced preprocessing strategies or the use of larger and more representative datasets. 
+At present, however, increasing the dataset size is not feasible due to the computational cost associated with evaluating the quantum kernel, which scales unfavorably with the number of samples.}
 
-This work \LHs{opens the door for} \LH{is a first step towards} future investigations into scalable quantum machine learning pipelines and highlights the role of quantum high-performance computing in facilitating hybrid computational workflows across diverse quantum architectures.
+This work is a first step towards future investigations into scalable quantum machine learning pipelines and highlights the role of quantum high-performance computing in facilitating hybrid computational workflows across diverse quantum architectures.
 
 \bibliography{refs.bib}
 \end{document}
