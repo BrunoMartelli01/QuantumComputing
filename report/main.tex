@@ -21,11 +21,11 @@
 \cortext[1]{Corresponding author.}
 
 \begin{abstract}
-    This work presents a fully quantum approach to support vector machine (SVM) learning by integrating gate-based quantum kernel methods with quantum annealing-based optimization.
-    We explore the construction of quantum kernels using various feature maps and qubit configurations, evaluating their suitability through Kernel-Target Alignment (KTA).
-    The SVM dual problem is reformulated as a Quadratic Unconstrained Binary Optimization (QUBO) problem, enabling its solution via quantum annealers.
-    Our experiments demonstrate that a high degree of alignment in the kernel and an appropriate regularization parameter lead to competitive performance, with the best model achieving an F1-score of 90\%.
-    These results highlight the feasibility of an end-to-end quantum learning pipeline and the potential of hybrid quantum architectures in quantum high-performance computing (QHPC) contexts.
+  This work presents a fully quantum approach to support vector machine (SVM) learning by integrating gate-based quantum kernel methods with quantum annealing-based optimization.
+  We explore the construction of quantum kernels using various feature maps and qubit configurations, evaluating their suitability through Kernel-Target Alignment (KTA).
+  The SVM dual problem is reformulated as a Quadratic Unconstrained Binary Optimization (QUBO) problem, enabling its solution via quantum annealers.
+  Our experiments demonstrate that a high degree of alignment in the kernel and an appropriate regularization parameter lead to competitive performance, with the best model achieving an F1-score of 90\%.
+  These results highlight the feasibility of an end-to-end quantum learning pipeline and the potential of hybrid quantum architectures in quantum high-performance computing (QHPC) contexts.
 \end{abstract}
 
 \begin{keywords}
@@ -135,19 +135,20 @@ Once the optimal hyperparameters for the individual components of the problem ha
 To identify the optimal hyperparameters to find a quantum kernel, we evaluated several values for the following parameters:
 \begin{description}
   \item[Number of qubits available:]
-  Determines the upper limit of encodable features. When the number of qubits was insufficient, we applied Principal Component Analysis (PCA) to project the data into an \emph{n}-dimensional subspace capturing the most relevant variance.
+        Determines the upper limit of encodable features.
+        When the number of qubits was insufficient, we applied Principal Component Analysis (PCA) to project the data into an \emph{n}-dimensional subspace capturing the most relevant variance.
 
   \item[Feature map:]
-  The quantum circuit responsible for encoding classical data into quantum states. These circuits determine the geometry of the induced Hilbert space and affect model expressivity.
-  Figure~\ref{fig:map_a}, Figure~\ref{fig:map_b} and Figure~\ref{fig:map_c} are three examples of possible feature maps.
+        The quantum circuit responsible for encoding classical data into quantum states.
+        These circuits determine the geometry of the induced Hilbert space and affect model expressivity.
+        Figure~\ref{fig:map_a}, Figure~\ref{fig:map_b} and Figure~\ref{fig:map_c} are three examples of possible feature maps.
 
   \item[Repetitions of the feature map:]
-  Defines how many times the feature map circuit is applied in sequence.
-  The reason repetitions of the same feature map may be required is that, in certain cases, a single application is not sufficient to capture the desired non-linear transformation $\phi(\vec{x})$.
-  This layered construction is analogous to deep architectures in classical machine learning, where increasing depth enhances representational capacity.
-  Figure~\ref{fig:map_c} shows a \texttt{ZZ\_feature\_map} repeated twice.
+        Defines how many times the feature map circuit is applied in sequence.
+        The reason repetitions of the same feature map may be required is that, in certain cases, a single application is not sufficient to capture the desired non-linear transformation $\phi(\vec{x})$.
+        This layered construction is analogous to deep architectures in classical machine learning, where increasing depth enhances representational capacity.
+        Figure~\ref{fig:map_c} shows a \texttt{ZZ\_feature\_map} repeated twice.
 \end{description}
-\noindent
 To evaluate the quality of the kernel derived from the various feature maps, we employed the \textit{Kernel-Target Alignment} (KTA) strategy \cite{kta}.
 This metric allows for estimating the effectiveness of a given kernel on a reference dataset without the need to train a machine learning model.
 
@@ -170,9 +171,9 @@ This is evidenced by the presence of both circuits with a large number of qubits
     \toprule
     \textbf{\# Qubits} & \textbf{Feature Map} & \textbf{Repetitions} & \textbf{Alignment (KTA)} \\
     \midrule
-    30 & SU2HR & 1 & 98.650\% \\
-    8  & ZMAP  & 2 & 93.558\% \\
-    16 & SU2RR & 1 & 91.203\% \\
+    30                 & SU2HR                & 1                    & 98.650\%                 \\
+    8                  & ZMAP                 & 2                    & 93.558\%                 \\
+    16                 & SU2RR                & 1                    & 91.203\%                 \\
     \bottomrule
   \end{tabular}
 \end{table}
