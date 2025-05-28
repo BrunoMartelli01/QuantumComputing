@@ -1,6 +1,5 @@
 # End2End Quantum learning
 
-
 ## Problem Statement
 
 The goal is to implement a **fully quantum pipeline** for training a **Support Vector Machine (SVM)** model using **quantum kernel methods**.
@@ -20,7 +19,7 @@ The goal is to implement a **fully quantum pipeline** for training a **Support V
 ### 1. Choice of Kernel
 
 - **Classical reference kernel**: RBF (Radial Basis Function), used for baseline comparisons.
-- **Quantum kernel**: ZZFeatureMap.
+- **Quantum kernel**: ZZFeatureMap, ZFeatureMap, custom kernels.
 - While kernel quality depends heavily on the dataset, for a Proof-of-Concept it is sufficient to use **standard**, **reasonably good** kernels.
 
 ### 2. Choice of SVM Model
@@ -45,19 +44,17 @@ In a local or experimental environment, hybrid execution on real hardware would 
 
 Such a setup is not easily scalable in non-distributed environments.
 
-## Available scripts:
+## Available scripts
 
-- `dataset.py`: file to generate the dataset from sklearn's `load_breast_cancer`
-- `qkernel.py`: file to create a quantum kernel
-- `qkernel_log_to_csv.py`: file to transform the logs produced during the study of kernels into a more easily explorable csv
-- `qsvm.py`: implementation of the quantum support vector machine with quantum annealing
-- `studies.ipynb`: experiments carried out to find the optimal parameters of the different pipeline components produced
+- `__main.py__`: Entry point to execute final tests with optimal parameters
+- `dataset.py`: Generates dataset using `load_breast_cancer` from scikit-learn
+- `parameter_study.py`: Explores optimal parameters for quantum SVM
+- `qkernel_log_to_csv.py`: Converts kernel study logs to a CSV format for easier analysis
+- `qkernel.py`: Implements quantum kernel construction
+- `qsvm.py`: Quantum SVM implementation using quantum annealing
 
-## Other files:
+## Other files
 
-- `primes.txt`: list of prime numbers used to generate the subsets of the dataset
-- `requirements.txt`: dependencies to execute scripts
-
-## Report
-
-The report folder contains LaTeX sources detailing what was done
+- `End2EndQuantumLearning.pdf`: Final project report (output of LaTeX build in the report folder)
+- `primes.txt`: List of prime numbers used to generate dataset subsets
+- `requirements.txt`: Python dependencies for running the project
