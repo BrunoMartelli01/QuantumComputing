@@ -190,7 +190,13 @@ Nevertheless, the differences in performance across the various configurations a
 
 \subsection{Fully Quantum SVM}\label{sec:qkernel_and_qasvm}
 
-By combining quantum kernels with optimization via quantum annealing, we constructed several QSVM models, aimed at learning decision boundaries that separate data classes in a feature space implicitly defined by the quantum kernel.
+By combining quantum kernels with optimization via quantum annealing, we designed a QSVM pipeline consisting of the following steps:
+\begin{enumerate*}
+  \item Computing the quantum kernel matrix $K$ using a gate-based quantum device, which encodes pairwise similarities between training examples in an implicit feature space;
+  \item Formulating an optimization problem where $K$ is used to construct the objective function;
+  \item Solving this problem using quantum annealing to determine the optimal model parameters;
+  \item Using the obtained parameters to perform inference on new examples.
+\end{enumerate*}
 These models are designed to solve supervised classification tasks by learning a hyperplane that separates samples belonging to the positive class from those of the negative class.
 
 The best-performing model was based on the kernel with the highest alignment (see Table~\ref{tab:top_kernel}), specifically the kernel constructed using 30 qubits and, among the candidate values introduced in Section~\ref{sec:qasvm}, a regularization parameter of $C=255$.
