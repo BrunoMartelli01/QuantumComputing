@@ -1,7 +1,5 @@
 \documentclass{ceurart}
 
-\usepackage{lineno}
-\linenumbers
 \usepackage[inline]{enumitem}
 \usepackage{physics}
 \usepackage{graphicx}
@@ -9,11 +7,6 @@
 \usepackage{subcaption}
 \usepackage{booktabs}
 
-\usepackage{ulem} % \sout
-\newcommand{\LH}[1]{\textcolor{blue}{{ #1}}}
-\newcommand{\LHs}[1]{\textcolor{blue}{\sout {#1}}}
-\newcommand{\LM}[1]{\textcolor{red}{{ #1}}}
-\newcommand{\LMs}[1]{\textcolor{red}{\sout {#1}}}
 \begin{document}
 
 \copyrightyear{2025}
@@ -84,11 +77,6 @@ Let $V$ be a set of input vectors.
 This procedure leads to define a kernel matrix $K$ such that each entry $K_{ij}$ corresponds to the similarity between  $\vec{x}_i$ and $\vec{x}_j$ as inferred from their representation as quantum states $\ket{\phi(\vec{x}_i)}$ and $\ket{\phi(\vec{x}_j)}$.
 Intuitively, the advantage of constructing $K$ as above lies in the ability of quantum kernels to exploit qubit entanglement and state superposition to compress the number of qubits required. Adding a single qubit to the feature map $\phi$ doubles the dimensionality of the space to which the input $x_i$ is mapped.
 
-
-
-%\LM{Intuitively, the advantage of constructing the matrix $K$, which represents the similarities between examples, using the method described above, lies in the ability of quantum kernels to exploit qubit entanglement and state superposition.
-%This allows for a compression in the number of qubits required, as adding a single qubit to the feature map $\phi$ doubles the dimensionality of the space to which the input $x_i$ is mapped.}
-
 %---------------------
 \section{Quantum Annealing Support Vector Machine}
 
@@ -151,7 +139,7 @@ To identify the optimal hyperparameters to find a quantum kernel, we evaluated s
 
   \item[Feature map:]
   The quantum circuit responsible for encoding classical data into quantum states. These circuits determine the geometry of the induced Hilbert space and affect model expressivity.
-  Figure~\ref{fig:map_a}, Figure~\ref{fig:map_b} and Figure~\ref{fig:map_c} \LHs{shows a couple} \LH{are three examples} of possible feature maps.
+  Figure~\ref{fig:map_a}, Figure~\ref{fig:map_b} and Figure~\ref{fig:map_c} are three examples of possible feature maps.
 
   \item[Repetitions of the feature map:]
   Defines how many times the feature map circuit is applied in sequence.
@@ -209,7 +197,7 @@ In this case, we achieved an \texttt{F1-score} of 90\%.
 We also observed that the negative class exhibited higher \texttt{recall} but lower \texttt{precision}, whereas the opposite was true for the positive class.
 This suggests that the trained model suffers from classification issues that lead to the generation of false negatives.
 False negatives were found across all models, indicating that this is a systematic issue.
-\LH{As usual(?), } a more effective preprocessing phase would likely result in a uniform performance improvement across all configurations.
+As usual, a more effective preprocessing phase would likely result in a uniform performance improvement across all configurations.
 
 The model with the smallest number of qubits yielded the poorest results.
 Using only 8 qubits to encode the input features and setting $C=63$, the resulting \texttt{F1-score} was 52\%, making this model comparable to random guessing.
