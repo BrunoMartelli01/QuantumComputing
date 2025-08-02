@@ -7,11 +7,17 @@
 \usepackage{subcaption}
 \usepackage{booktabs}
 
+\usepackage{ulem} % \sout
+\newcommand{\LH}[1]{\textcolor{blue}{{ #1}}}
+\newcommand{\LHs}[1]{\textcolor{blue}{\sout {#1}}}
+\newcommand{\LM}[1]{\textcolor{red}{{ #1}}}
+\newcommand{\LMs}[1]{\textcolor{red}{\sout {#1}}}
+
 \begin{document}
 
 \copyrightyear{2025}
 \copyrightclause{Copyright for this paper by its authors. Use permitted under Creative Commons License Attribution 4.0 International (CC BY 4.0).}
-\conference{BigHPC2025: Special Track on Big Data and High-Performance Computing, co-located with the 4\textsuperscript{th} Italian Conference on Big Data and Data Science, ITADATA2025, September 09 -- 11, 2025, Turin, Italy.}
+\conference{BigHPC2025: Special Track on Big Data and High-Performance Computing, co-located with the 4\textsuperscript{th} Italian Conference on Big Data and Data Science, ITADATA2025, September 9 -- 11, 2025, Torino, Italy.}
 \title{End2End Quantum Learning}
 
 \author[1]{Mario Bifulco}[email=mario.bifulco@unito.it,url=https://github.com/TheFlonet/End2EndQuantumSVM]
@@ -63,6 +69,9 @@ This work aims to unify the aforementioned approaches to construct a fully quant
 Moreover, the use of different types of QPUs enables experimentation within the domain of Quantum High Performance Computing (QHPC).
 In this domain, traditional CPU and GPU systems can collaborate with various QPUs—regardless of their underlying architecture—with the goal of addressing computationally intensive problems.
 
+\LM{To evaluate the proposed pipeline, we employed a subset of the Breast Cancer dataset~\cite{dataset}. 
+The samples were randomly selected by iterating over the first 10{,}000 prime numbers as seeds, in order to identify the one that best preserved the original statistical distribution.}
+
 %---------------------
 \section{A short recap about gate-based generated Quantum Kernels}
 
@@ -87,7 +96,6 @@ By incorporating constraints into the objective via penalty terms and converting
 Constraint incorporation is typically achieved through Lagrangian relaxation \cite{lagrangian_relaxation}.
 However, the binarization process is less straightforward due to the continuous nature of the optimization variables, which lie in $\mathbb{R}$.
 On one hand, integer variables can be automatically encoded in binary format, provided that an upper bound is defined for each variable.
-This additional hyperparameter is crucial, as omitting it would result in each variable being represented with 64 bits by default, leading to problems that exceed the capacity of current quantum annealers.
 On the other hand, the binarization of real-valued variables incurs significantly more overhead.
 
 Empirically, we found that treating all optimization variables as integers yields a degradation in model performance of less than one percentage point.
@@ -137,17 +145,20 @@ To identify the optimal hyperparameters to find a quantum kernel, we evaluated s
   \item[Number of qubits available:]
         Determines the upper limit of encodable features.
         When the number of qubits was insufficient, we applied Principal Component Analysis (PCA) to project the data into an \emph{n}-dimensional subspace capturing the most relevant variance.
+        \LM{We evaluated the pipeline using 4, 8, 16, and 30 qubits.}
 
   \item[Feature map:]
         The quantum circuit responsible for encoding classical data into quantum states.
         These circuits determine the geometry of the induced Hilbert space and affect model expressivity.
         Figure~\ref{fig:map_a}, Figure~\ref{fig:map_b} and Figure~\ref{fig:map_c} are three examples of possible feature maps.
+        \LM{The feature maps considered in our experiments include \texttt{Z\_feature\_map}, \texttt{ZZ\_feature\_map}, \texttt{SU2HR}, and \texttt{SU2RR}.}
 
   \item[Repetitions of the feature map:]
         Defines how many times the feature map circuit is applied in sequence.
         The reason repetitions of the same feature map may be required is that, in certain cases, a single application is not sufficient to capture the desired non-linear transformation $\phi(\vec{x})$.
         This layered construction is analogous to deep architectures in classical machine learning, where increasing depth enhances representational capacity.
         Figure~\ref{fig:map_c} shows a \texttt{ZZ\_feature\_map} repeated twice.
+        \LM{We tested circuits with both one and two repetitions of the feature map.}
 \end{description}
 To evaluate the quality of the kernel derived from the various feature maps, we employed the \textit{Kernel-Target Alignment} (KTA) strategy \cite{kta}.
 This metric allows for estimating the effectiveness of a given kernel on a reference dataset without the need to train a machine learning model.
@@ -219,7 +230,7 @@ By integrating gate-based quantum kernel methods with quantum annealing-based op
 Our results show that the choice of quantum kernel—particularly the number of qubits and the selected feature map—significantly influences classification performance.
 Furthermore, we observed that the approximation involved in representing real-valued optimization variables with discrete binary variables in the QUBO formulation does not lead to substantial performance degradation.
 
-The best-performing configuration, employing 30 qubits and a regularization parameter $C=255$, achieved an F1-score of 90\%.
+The best-performing configuration, employing 30 qubits and a regularization parameter $C=255$, achieved an F1-score of 90\%, \LM{a result comparable to that obtained using a classical SVM with an RBF kernel, which achieved an F1-score of 91\%. The marginal performance difference may be attributed to the discretization of optimization variables in the quantum annealing process.}
 However, the presence of systematic false negatives suggests that further improvements could be achieved with a more refined data preprocessing pipeline.
 While incorporating domain knowledge about the origin and nature of the training and test datasets could also be beneficial, we believe that the most effective improvements are likely to come from enhanced preprocessing strategies or the use of larger and more representative datasets.
 At present, however, increasing the dataset size is not feasible due to the computational cost associated with evaluating the quantum kernel, which scales unfavorably with the number of samples.
