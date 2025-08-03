@@ -65,7 +65,7 @@ In the literature, the term \emph{Quantum Support Vector Machine (QSVM)} is used
 In the quantum annealing framework, QSVM refers to the use of classical kernels combined with a reformulation of the optimization problem to be solved via quantum annealing.
 In the gate-based approach, by contrast, quantum computing is employed to compute the kernels, while the optimization is handled by classical processors.
 
-This work aims to unify the aforementioned approaches to construct a fully quantum learning pipeline for support vector machines using a kernel based on quantum gates and a model optimisation process based on quantum annealing.
+This work aims to unify the aforementioned approaches to construct a fully quantum learning pipeline for support vector machines using a kernel based on quantum gates and a model optimization process based on quantum annealing.
 Moreover, the use of different types of QPUs enables experimentation within the domain of Quantum High Performance Computing (QHPC).
 In this domain, traditional CPU and GPU systems can collaborate with various QPUs—regardless of their underlying architecture—with the goal of addressing computationally intensive problems.
 
@@ -110,10 +110,10 @@ Higher values of $C$ emphasize correct classification of training examples, wher
 \section{Results}
 
 Both the design of a kernel and the optimization of the SVM problem require the selection of hyperparameters prior to training.
-Section \ref{sec:qkernel} presents our investigation into the parametrization of the contruction of a quantum kernel in the context of gate-based architectures, with respect to a chosen dataset.
+Section \ref{sec:qkernel} presents our investigation into the parametrization of the construction of a quantum kernel in the context of gate-based architectures, with respect to a chosen dataset.
 Section \ref{sec:qasvm} reports on a set of experiments aimed at selecting the parameter $C$ in the context of quantum-anneal based architectures, assuming no kernel is employed during training.
 
-Once the optimal hyperparameters for the individual components of the problem have been indipendently identified, Section \ref{sec:qkernel_and_qasvm} presents the results of the end-to-end learning pipeline for fully quantum SVMs—namely, those employing a kernel generated via quantum gates and optimization performed through quantum annealing.
+Once the optimal hyperparameters for the individual components of the problem have been independently identified, Section \ref{sec:qkernel_and_qasvm} presents the results of the end-to-end learning pipeline for fully quantum SVMs—namely, those employing a kernel generated via quantum gates and optimization performed through quantum annealing.
 
 \subsection{Finding a good Quantum Kernel}\label{sec:qkernel}
 
@@ -172,7 +172,7 @@ A higher value of KTA indicates a stronger alignment and, consequently, a potent
 
 The top three configurations for the quantum kernel are reported in Table~\ref{tab:top_kernel}. All proposed configurations exhibit a high degree of alignment.
 In this study, no single hyperparameter emerged as universally optimal across configurations.
-This is evidenced by the presence of both circuits with a large number of qubits and those with fewer qubits, deep circuits as well as shallow ones, and the use of three distinct feature maps.
+This is evidenced by the presence of both circuits with many qubits and those with fewer qubits, deep circuits as well as shallow ones, and the use of three distinct feature maps.
 
 \begin{table}
   \centering
