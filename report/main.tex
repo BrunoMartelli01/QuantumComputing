@@ -7,18 +7,12 @@
 \usepackage{subcaption}
 \usepackage{booktabs}
 
-\usepackage{ulem} % \sout
-\newcommand{\LH}[1]{\textcolor{blue}{{ #1}}}
-\newcommand{\LHs}[1]{\textcolor{blue}{\sout {#1}}}
-\newcommand{\LM}[1]{\textcolor{red}{{ #1}}}
-\newcommand{\LMs}[1]{\textcolor{red}{\sout {#1}}}
-
 \begin{document}
 
 \copyrightyear{2025}
 \copyrightclause{Copyright for this paper by its authors. Use permitted under Creative Commons License Attribution 4.0 International (CC BY 4.0).}
 \conference{BigHPC2025: Special Track on Big Data and High-Performance Computing, co-located with the 4\textsuperscript{th} Italian Conference on Big Data and Data Science, ITADATA2025, September 9 -- 11, 2025, Torino, Italy.}
-\title{End2End Quantum Learning}
+\title{Exploring an implementation of quantum learning pipeline for support vector machines}
 
 \author[1]{Mario Bifulco}[email=mario.bifulco@unito.it,url=https://github.com/TheFlonet/End2EndQuantumSVM]
 \cormark[1]
@@ -69,8 +63,9 @@ This work aims to unify the aforementioned approaches to construct a fully quant
 Moreover, the use of different types of QPUs enables experimentation within the domain of Quantum High Performance Computing (QHPC).
 In this domain, traditional CPU and GPU systems can collaborate with various QPUs—regardless of their underlying architecture—with the goal of addressing computationally intensive problems.
 
-\LM{To evaluate the proposed pipeline, we employed a subset of the Breast Cancer dataset~\cite{dataset}.
-The samples were randomly selected by iterating over the first 10{,}000 prime numbers as seeds, in order to identify the one that best preserved the original statistical distribution.} \LH{C'è un motivo per la scelta del data-set?}
+To evaluate the proposed pipeline, we employed a subset of the Breast Cancer dataset~\cite{dataset}.
+The samples were randomly selected by iterating over the first 10{,}000 prime numbers as seeds, in order to identify the one that best preserved the original statistical distribution.
+Breast Cancer dataset was chosen due to its well-established use in benchmarking classification algorithms and its balanced representation of clinically relevant features, which make it particularly suitable for evaluating the robustness and generalizability of machine learning pipelines.
 
 %---------------------
 \section{A short recap about gate-based generated Quantum Kernels}
@@ -110,7 +105,7 @@ Higher values of $C$ emphasize correct classification of training examples, wher
 \section{Results}
 
 Both the design of a kernel and the optimization of the SVM problem require the selection of hyperparameters prior to training.
-Section \ref{sec:qkernel} presents our investigation into the parametrization of the construction of a quantum kernel in the context of gate-based architectures, with respect to \LHs{\textbf{a}} \LH{\textbf{the}(?)} chosen dataset.
+Section \ref{sec:qkernel} presents our investigation into the parametrization of the construction of a quantum kernel in the context of gate-based architectures, with respect to the chosen dataset.
 Section \ref{sec:qasvm} reports on a set of experiments aimed at selecting the parameter $C$ in the context of quantum-anneal based architectures, assuming no kernel is employed during training.
 
 Once the optimal hyperparameters for the individual components of the problem have been independently identified, Section \ref{sec:qkernel_and_qasvm} presents the results of the end-to-end learning pipeline for fully quantum SVMs—namely, those employing a kernel generated via quantum gates and optimization performed through quantum annealing.
@@ -145,20 +140,20 @@ To identify the optimal hyperparameters to find a quantum kernel, we evaluated s
   \item[Number of qubits available:]
         Determines the upper limit of encodable features.
         When the number of qubits was insufficient, we applied Principal Component Analysis (PCA) to project the data into an \emph{n}-dimensional subspace capturing the most relevant variance.
-        \LM{We evaluated the pipeline using 4, 8, 16, and 30 qubits.} \LH{30 e non $32=2^5$? Immagino ci sia un motivo.}
+        We evaluated the pipeline using 4, 8, 16, and 30 qubits, which represents the maximum number of features in the dataset.
 
   \item[Feature map:]
         The quantum circuit responsible for encoding classical data into quantum states.
         These circuits determine the geometry of the induced Hilbert space and affect model expressivity.
         Figure~\ref{fig:map_a}, Figure~\ref{fig:map_b} and Figure~\ref{fig:map_c} are three examples of possible feature maps.
-        \LM{The feature maps considered in our experiments include \texttt{Z\_feature\_map}, \texttt{ZZ\_feature\_map}, \texttt{SU2HR}, and \texttt{SU2RR}.}
+        The feature maps considered in our experiments include \texttt{Z\_feature\_map}, \texttt{ZZ\_feature\_map}, \texttt{SU2HR}, and \texttt{SU2RR}.
 
   \item[Repetitions of the feature map:]
         Defines how many times the feature map circuit is applied in sequence.
         The reason repetitions of the same feature map may be required is that, in certain cases, a single application is not sufficient to capture the desired non-linear transformation $\phi(\vec{x})$.
         This layered construction is analogous to deep architectures in classical machine learning, where increasing depth enhances representational capacity.
         Figure~\ref{fig:map_c} shows a \texttt{ZZ\_feature\_map} repeated twice.
-        \LM{We tested circuits with both one and two repetitions of the feature map.}
+        We tested circuits with both one and two repetitions of the feature map.
 \end{description}
 To evaluate the quality of the kernel derived from the various feature maps, we employed the \textit{Kernel-Target Alignment} (KTA) strategy \cite{kta}.
 This metric allows for estimating the effectiveness of a given kernel on a reference dataset without the need to train a machine learning model.
@@ -189,7 +184,7 @@ This is evidenced by the presence of both circuits with many qubits and those wi
   \end{tabular}
 \end{table}
 
-\subsection{Selecting \LH{the} regularization parameter \LH{C} for Quantum Annealing SVM}\label{sec:qasvm}
+\subsection{Selecting the regularization parameter C for Quantum Annealing SVM}\label{sec:qasvm}
 
 In our experiments, we explored a range of values for $C$ by selecting powers of two, from $2^2 - 1$ to $2^{12} - 1$.
 This choice is motivated by the way optimization variables are encoded in our quantum annealing formulation of SVMs. Specifically, each continuous optimization variable is discretized and represented using $\log_2(C)$ binary variables.
@@ -230,12 +225,11 @@ By integrating gate-based quantum kernel methods with quantum annealing-based op
 Our results show that the choice of quantum kernel—particularly the number of qubits and the selected feature map—significantly influences classification performance.
 Furthermore, we observed that the approximation involved in representing real-valued optimization variables with discrete binary variables in the QUBO formulation does not lead to substantial performance degradation.
 
-The best-performing configuration, employing 30 qubits and a regularization parameter $C=255$, achieved an F1-score of 90\%, \LM{a result comparable to that obtained using a classical SVM with an RBF kernel, which achieved an F1-score of 91\%. The marginal performance difference may be attributed to the discretization of optimization variables in the quantum annealing process.}
-\LHs{\textbf{However, t}} \LH{\textbf{T}}he presence of systematic false negatives suggests that further improvements could be achieved with a more refined data preprocessing pipeline.
-While incorporating domain knowledge about the origin and nature of the training and test datasets could also be beneficial, we believe that the most effective improvements are likely to come from enhanced preprocessing strategies or the use of larger and more representative datasets.
-At present, however, increasing the dataset size is not feasible due to the computational cost associated with evaluating the quantum kernel, which scales unfavorably with the number of samples. \LH{Non capisco se quest'ultima frase depone a sfavore dell'uso di pipeline quantistiche per apprendere SVN.}
+The best-performing configuration, employing 30 qubits and a regularization parameter $C=255$, achieved an F1-score of 90\%, a result comparable to that obtained using a classical SVM with an RBF kernel, which achieved an F1-score of 91\%. The marginal performance difference may be attributed to the discretization of optimization variables in the quantum annealing process.
+The presence of systematic false negatives suggests that further improvements could be achieved with a more refined data preprocessing pipeline.
+While incorporating domain knowledge about the origin and nature of the training and test datasets could also be beneficial, we believe that the most effective improvements are likely to come from enhanced preprocessing strategies or the use of larger and more representative datasets
 
-This work is a first step towards future investigations into scalable quantum machine learning pipelines and highlights the role of quantum high-performance computing in facilitating hybrid computational workflows across diverse quantum architectures. \LH{Forse, togliendo questa ultima frase ce ne sta una, da qualche parte, in cui accenni alle statistiche, se le hai ricavate, su cui punta R2 nell'ultima parte dei commenti?}
+This work is a first step towards future investigations into scalable quantum machine learning pipelines and highlights the role of quantum high-performance computing in facilitating hybrid computational workflows across diverse quantum architectures. 
 
 \bibliography{refs.bib}
 \end{document}
