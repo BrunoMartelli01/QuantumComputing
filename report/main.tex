@@ -69,8 +69,8 @@ This work aims to unify the aforementioned approaches to construct a fully quant
 Moreover, the use of different types of QPUs enables experimentation within the domain of Quantum High Performance Computing (QHPC).
 In this domain, traditional CPU and GPU systems can collaborate with various QPUs—regardless of their underlying architecture—with the goal of addressing computationally intensive problems.
 
-\LM{To evaluate the proposed pipeline, we employed a subset of the Breast Cancer dataset~\cite{dataset}. 
-The samples were randomly selected by iterating over the first 10{,}000 prime numbers as seeds, in order to identify the one that best preserved the original statistical distribution.}
+\LM{To evaluate the proposed pipeline, we employed a subset of the Breast Cancer dataset~\cite{dataset}.
+The samples were randomly selected by iterating over the first 10{,}000 prime numbers as seeds, in order to identify the one that best preserved the original statistical distribution.} \LH{C'è un motivo per la scelta del data-set?}
 
 %---------------------
 \section{A short recap about gate-based generated Quantum Kernels}
@@ -110,7 +110,7 @@ Higher values of $C$ emphasize correct classification of training examples, wher
 \section{Results}
 
 Both the design of a kernel and the optimization of the SVM problem require the selection of hyperparameters prior to training.
-Section \ref{sec:qkernel} presents our investigation into the parametrization of the construction of a quantum kernel in the context of gate-based architectures, with respect to a chosen dataset.
+Section \ref{sec:qkernel} presents our investigation into the parametrization of the construction of a quantum kernel in the context of gate-based architectures, with respect to \LHs{\textbf{a}} \LH{\textbf{the}(?)} chosen dataset.
 Section \ref{sec:qasvm} reports on a set of experiments aimed at selecting the parameter $C$ in the context of quantum-anneal based architectures, assuming no kernel is employed during training.
 
 Once the optimal hyperparameters for the individual components of the problem have been independently identified, Section \ref{sec:qkernel_and_qasvm} presents the results of the end-to-end learning pipeline for fully quantum SVMs—namely, those employing a kernel generated via quantum gates and optimization performed through quantum annealing.
@@ -145,7 +145,7 @@ To identify the optimal hyperparameters to find a quantum kernel, we evaluated s
   \item[Number of qubits available:]
         Determines the upper limit of encodable features.
         When the number of qubits was insufficient, we applied Principal Component Analysis (PCA) to project the data into an \emph{n}-dimensional subspace capturing the most relevant variance.
-        \LM{We evaluated the pipeline using 4, 8, 16, and 30 qubits.}
+        \LM{We evaluated the pipeline using 4, 8, 16, and 30 qubits.} \LH{30 e non $32=2^5$? Immagino ci sia un motivo.}
 
   \item[Feature map:]
         The quantum circuit responsible for encoding classical data into quantum states.
@@ -189,7 +189,7 @@ This is evidenced by the presence of both circuits with many qubits and those wi
   \end{tabular}
 \end{table}
 
-\subsection{Selecting regularization parameter for Quantum Annealing SVM}\label{sec:qasvm}
+\subsection{Selecting \LH{the} regularization parameter \LH{C} for Quantum Annealing SVM}\label{sec:qasvm}
 
 In our experiments, we explored a range of values for $C$ by selecting powers of two, from $2^2 - 1$ to $2^{12} - 1$.
 This choice is motivated by the way optimization variables are encoded in our quantum annealing formulation of SVMs. Specifically, each continuous optimization variable is discretized and represented using $\log_2(C)$ binary variables.
@@ -231,11 +231,11 @@ Our results show that the choice of quantum kernel—particularly the number of 
 Furthermore, we observed that the approximation involved in representing real-valued optimization variables with discrete binary variables in the QUBO formulation does not lead to substantial performance degradation.
 
 The best-performing configuration, employing 30 qubits and a regularization parameter $C=255$, achieved an F1-score of 90\%, \LM{a result comparable to that obtained using a classical SVM with an RBF kernel, which achieved an F1-score of 91\%. The marginal performance difference may be attributed to the discretization of optimization variables in the quantum annealing process.}
-However, the presence of systematic false negatives suggests that further improvements could be achieved with a more refined data preprocessing pipeline.
+\LHs{\textbf{However, t}} \LH{\textbf{T}}he presence of systematic false negatives suggests that further improvements could be achieved with a more refined data preprocessing pipeline.
 While incorporating domain knowledge about the origin and nature of the training and test datasets could also be beneficial, we believe that the most effective improvements are likely to come from enhanced preprocessing strategies or the use of larger and more representative datasets.
-At present, however, increasing the dataset size is not feasible due to the computational cost associated with evaluating the quantum kernel, which scales unfavorably with the number of samples.
+At present, however, increasing the dataset size is not feasible due to the computational cost associated with evaluating the quantum kernel, which scales unfavorably with the number of samples. \LH{Non capisco se quest'ultima frase depone a sfavore dell'uso di pipeline quantistiche per apprendere SVN.}
 
-This work is a first step towards future investigations into scalable quantum machine learning pipelines and highlights the role of quantum high-performance computing in facilitating hybrid computational workflows across diverse quantum architectures.
+This work is a first step towards future investigations into scalable quantum machine learning pipelines and highlights the role of quantum high-performance computing in facilitating hybrid computational workflows across diverse quantum architectures. \LH{Forse, togliendo questa ultima frase ce ne sta una, da qualche parte, in cui accenni alle statistiche, se le hai ricavate, su cui punta R2 nell'ultima parte dei commenti?}
 
 \bibliography{refs.bib}
 \end{document}
