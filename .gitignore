@@ -1,5 +1,6 @@
 __pycache__
 report/build
+presentation/build
 *.csv
 *.txt
 !report/Copyright*.txt
